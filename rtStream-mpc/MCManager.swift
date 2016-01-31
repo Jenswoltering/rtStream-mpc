@@ -12,13 +12,13 @@ import MultipeerConnectivity
 
 protocol MCManagerDelegate {
     
-    func connectedDevicesChanged(manager : MCManager, connectedDevices: [String])
-    func colorChanged(manager : MCManager, colorString: String)
+    func connectedDevicesChanged(manager : MCManager, connectedDevice: MCPeerID, didChangeState: Int)
+    func incomingMassage(manager : MCManager, fromPeer : MCPeerID, msg: NSData)
     
 }
 
 class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBrowserDelegate, MCSessionDelegate {
-    private let serviceType:String  = "rtStream"
+    private let serviceType:String?
     private let myPeerId = MCPeerID(displayName: UIDevice.currentDevice().name.capitalizedString)
     private let serviceAdvertiser: MCNearbyServiceAdvertiser
     let serviceBrowser: MCNearbyServiceBrowser
@@ -32,17 +32,28 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
 
     var delegate : MCManagerDelegate?
     
-    override init() {
+    convenience override init() {
+        self.init(serviceTyeName: "rtStream")
         
-        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerId, discoveryInfo: ["Name": "tets"], serviceType: serviceType)
-        self.serviceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: serviceType)
+        
+    }
+    
+    init(serviceTyeName:String) {
+        self.serviceType=serviceTyeName
+        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerId, discoveryInfo: ["Name": "tets"], serviceType: serviceType!)
+        self.serviceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: serviceType!)
         super.init()
         self.serviceAdvertiser.delegate = self
         self.serviceBrowser.delegate = self
+       
+    }
+    
+    func startBrowsing(){
         self.serviceAdvertiser.startAdvertisingPeer()
         self.serviceBrowser.startBrowsingForPeers()
-        
     }
+    
+    
     func stopBrowsing(){
         self.serviceAdvertiser.stopAdvertisingPeer()
         self.serviceBrowser.stopBrowsingForPeers()
@@ -81,21 +92,27 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     func session(session: MCSession, peer peerID: MCPeerID, didChangeState state: MCSessionState) {
         switch state {
         case .NotConnected:
-            print("not connected")
+             print("not connected")
         case .Connected:
-            print("connected")
+             print("connected")
+             if session.connectedPeers.contains(peerID){
+                self.delegate?.connectedDevicesChanged(self ,connectedDevice: peerID, didChangeState: state.rawValue)
+             }
         default:
-            print("connecting")
+             print("connecting")
         }
-        self.delegate?.connectedDevicesChanged(self, connectedDevices: session.connectedPeers.map({$0.displayName}))
+        //NSLog("%@", "peer \(peerID) didChangeState: \(state.rawValue.description)")
     }
     
     func session(session: MCSession, didReceiveData data: NSData, fromPeer peerID: MCPeerID) {
         print("didReceiveData:")
+        self.delegate?.incomingMassage(self, fromPeer: peerID, msg: data)
+        
     }
     
     func session(session: MCSession, didReceiveStream stream: NSInputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
         print("\(streamName) : didReceiveStream")
+        
     }
     
     func session(session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, atURL localURL: NSURL, withError error: NSError?) {
@@ -105,6 +122,16 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     func session(session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, withProgress progress: NSProgress) {
         print("\(resourceName) : didStarReceivingResourceWithName")
     }
+    
+    func sendMessageToPeer(peer: [MCPeerID], messageToSend message:NSData) ->Bool{
+        do{
+            try self.session.sendData(message, toPeers: peer, withMode: MCSessionSendDataMode.Unreliable)
+            return true
+        }catch{
+            return false
+        }
+    }
+    
     
 }
 

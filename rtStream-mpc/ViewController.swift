@@ -9,16 +9,14 @@
 import UIKit
 import MultipeerConnectivity
 
-class ViewController: UIViewController , MCManagerDelegate {
+class ViewController: UIViewController {
 
-    @IBOutlet weak var findpeer: UIButton!
-    @IBOutlet weak var connectionLabel: UILabel!
-    let mcMananger = MCManager()
+    let rtStrem = RTStream(serviceType: "Test")
     override func viewDidLoad() {
         
     
         super.viewDidLoad()
-        mcMananger.delegate = self
+        
         //mcMananger.startBrowsing()
        
         // Do any additional setup after loading the view, typically from a nib.
@@ -28,18 +26,6 @@ class ViewController: UIViewController , MCManagerDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-    
-    func connectedDevicesChanged(manager : MCManager, connectedDevices: [String]){
-        NSOperationQueue.mainQueue().addOperationWithBlock {
-            print("Connections: \(connectedDevices)")
-        }
-        
-    }
-    func colorChanged(manager : MCManager, colorString: String){
-        
-    }
-
 
 
 }

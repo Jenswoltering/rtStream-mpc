@@ -123,9 +123,11 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
         print("\(resourceName) : didStarReceivingResourceWithName")
     }
     
-    func sendMessageToPeer(peer: [MCPeerID], messageToSend message:NSData) ->Bool{
+    func sendMessageToPeer(peer: MCPeerID, messageToSend message:NSData) ->Bool{
+        var toPeer:[MCPeerID]=[]
+        toPeer.append(peer)
         do{
-            try self.session.sendData(message, toPeers: peer, withMode: MCSessionSendDataMode.Unreliable)
+            try self.session.sendData(message, toPeers: toPeer, withMode: MCSessionSendDataMode.Unreliable)
             return true
         }catch{
             return false

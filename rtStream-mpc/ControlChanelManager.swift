@@ -16,23 +16,56 @@ class ControlChanelManager :MCManagerDelegate {
     }
     
     func connectedDevicesChanged(manager : MCManager, connectedDevice: MCPeerID, didChangeState: Int) {
-        var recipientAsArray: [MCPeerID] = []
-        recipientAsArray.append(connectedDevice)
-            let message = "Hello"
-            manager.sendMessageToPeer(recipientAsArray, messageToSend: message.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!)
+        let message : [String:AnyObject] = [
+            "type":"hello",
+            "role":"receiver"
+        ]
+        manager.sendMessageToPeer(connectedDevice, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(message))
 }
     
     func incomingMassage(manager: MCManager, fromPeer: MCPeerID, msg: NSData) {
-         let str = NSString(data: msg, encoding: NSUTF8StringEncoding) as! String
-        print(str)
+        let incomingTimeInMillis = currentTimeMillis()
+        var msgDict :[String:AnyObject]?
+        msgDict = NSKeyedUnarchiver.unarchiveObjectWithData(msg) as? [String : AnyObject]
         
-        
-        var recipientAsArray: [MCPeerID] = []
-        recipientAsArray.append(fromPeer)
-        let message = " "
-        manager.sendMessageToPeer(recipientAsArray, messageToSend: message.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!)
+        switch msgDict!["type"] as! String {
+        case "hello":
+            print("hello")
+            manager.sendMessageToPeer(fromPeer, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(getRoundTripTime(currentTimeMillis())))
+        case "rttreq":
+            print("rtt")
+            msgDict!["type"] = "rttres"
+            msgDict!["processingTime"] = (currentTimeMillis() - incomingTimeInMillis) as AnyObject
+            manager.sendMessageToPeer(fromPeer, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(msgDict!))
+        case "rttres":
+            print("rttresponse")
+            let processingTime = msgDict!["processingTime"] as! Double
+            msgDict!["endTime"]=incomingTimeInMillis - processingTime
+            
+            let duration = (msgDict!["endTime"] as! Double) - (msgDict!["initTime"] as! Double)
+            
+            print("processingTime \(msgDict!["processingTime"]?.description)")
+            print("endTime \(duration.description)")
+            
+        default:
+            print("invalid message type")
+        }
+
     }
     
-
+    func currentTimeMillis() -> Double{
+        let nowDouble = NSDate().timeIntervalSince1970
+        return nowDouble*1000
+    }
+    
+    func getRoundTripTime(currentTime :Double)->[String:AnyObject]{
+        let message : [String:AnyObject] = [
+            "type":"rttreq",
+            "initTime":currentTime as AnyObject,
+            "processingTime":0 as AnyObject,
+            "endTime":0 as AnyObject
+        ]
+        return message
+    }
 
 }

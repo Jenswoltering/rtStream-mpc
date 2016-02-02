@@ -13,6 +13,7 @@ import MultipeerConnectivity
 protocol MCManagerDelegate {
     
     func connectedDevicesChanged(manager : MCManager, connectedDevice: MCPeerID, didChangeState: Int)
+    func lostPeer(manager : MCManager, lostDevice: MCPeerID)
     func incomingMassage(manager : MCManager, fromPeer : MCPeerID, msg: NSData)
     
 }
@@ -40,7 +41,7 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     
     init(serviceTyeName:String) {
         self.serviceType=serviceTyeName
-        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerId, discoveryInfo: ["Name": "tets"], serviceType: serviceType!)
+        self.serviceAdvertiser = MCNearbyServiceAdvertiser(peer: myPeerId, discoveryInfo: nil, serviceType: serviceType!)
         self.serviceBrowser = MCNearbyServiceBrowser(peer: myPeerId, serviceType: serviceType!)
         super.init()
         self.serviceAdvertiser.delegate = self
@@ -78,6 +79,7 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     
     func browser(browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
         print("\(peerID) : lostPeer:")
+        self.delegate?.lostPeer(self, lostDevice:  peerID)
     }
     
     func browser(browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
@@ -105,7 +107,7 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     }
     
     func session(session: MCSession, didReceiveData data: NSData, fromPeer peerID: MCPeerID) {
-        print("didReceiveData:")
+        //print("didReceiveData:")
         self.delegate?.incomingMassage(self, fromPeer: peerID, msg: data)
         
     }

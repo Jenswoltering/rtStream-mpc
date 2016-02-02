@@ -17,6 +17,7 @@
 		7364B0131C56338600509138 /* MCManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364B0121C56338500509138 /* MCManager.swift */; };
 		73B62B731C5817DE0000B713 /* rtStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B62B721C5817DE0000B713 /* rtStream.swift */; };
 		73B62B751C5957AC0000B713 /* ControlChanelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B62B741C5957AC0000B713 /* ControlChanelManager.swift */; };
+		73D1429A1C60B65500175F65 /* rtStreamPeer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D142991C60B65400175F65 /* rtStreamPeer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		7364B0121C56338500509138 /* MCManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MCManager.swift; sourceTree = "<group>"; };
 		73B62B721C5817DE0000B713 /* rtStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rtStream.swift; sourceTree = "<group>"; };
 		73B62B741C5957AC0000B713 /* ControlChanelManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControlChanelManager.swift; sourceTree = "<group>"; };
+		73D142991C60B65400175F65 /* rtStreamPeer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rtStreamPeer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +109,7 @@
 				7364AFE41C4A7EA900509138 /* ViewController.swift */,
 				7364AFE61C4A7EA900509138 /* Main.storyboard */,
 				73B62B721C5817DE0000B713 /* rtStream.swift */,
+				73D142991C60B65400175F65 /* rtStreamPeer.swift */,
 				73B62B741C5957AC0000B713 /* ControlChanelManager.swift */,
 				7364B0121C56338500509138 /* MCManager.swift */,
 				7364AFE91C4A7EA900509138 /* Assets.xcassets */,
@@ -266,6 +269,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7364AFE51C4A7EA900509138 /* ViewController.swift in Sources */,
+				73D1429A1C60B65500175F65 /* rtStreamPeer.swift in Sources */,
 				73B62B751C5957AC0000B713 /* ControlChanelManager.swift in Sources */,
 				7364B0131C56338600509138 /* MCManager.swift in Sources */,
 				7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */,

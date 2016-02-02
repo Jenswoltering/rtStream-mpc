@@ -10,18 +10,22 @@ import UIKit
 import MultipeerConnectivity
 
 class ViewController: UIViewController {
+    @IBOutlet weak var RTTButton: UIButton!
 
-    let rtStrem = RTStream(serviceType: "Test")
+    var rtStream :RTStream?
     override func viewDidLoad() {
         
-    
         super.viewDidLoad()
-        
-        //mcMananger.startBrowsing()
-       
-        // Do any additional setup after loading the view, typically from a nib.
+        rtStream = RTStream(serviceType: "Test")
     }
 
+    @IBAction func RTTPressed(sender: AnyObject) {
+        if rtStream?.connectedPeers.isEmpty == false{
+            rtStream?.controlChanel.getRoundTripTimeForPeer((rtStream?.connectedPeers.first?.peerID)!, response: false, rttPackage: nil)
+        }
+        
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

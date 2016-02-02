@@ -49,6 +49,10 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
        
     }
     
+    func getMyPeerID()->MCPeerID{
+        return self.myPeerId
+    }
+    
     func startBrowsing(){
         self.serviceAdvertiser.startAdvertisingPeer()
         self.serviceBrowser.startBrowsingForPeers()

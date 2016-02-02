@@ -12,11 +12,12 @@ import MultipeerConnectivity
 class RTStream{
     var mcManager:MCManager!
     var controlChanel:ControlChanelManager!
-    
+    var myPeer:rtStreamPeer?
     var connectedPeers:[rtStreamPeer]=[]
     
     init(serviceType:String){
         mcManager=MCManager(serviceTyeName: serviceType)
+        myPeer=rtStreamPeer(peerID: mcManager.getMyPeerID(),isBroadcaster: false)
         controlChanel=ControlChanelManager(parent: self, transportManager: mcManager)
         mcManager.delegate=controlChanel
         sleep(5)

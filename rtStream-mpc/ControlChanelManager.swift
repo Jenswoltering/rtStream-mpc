@@ -24,10 +24,10 @@ class ControlChanelManager :MCManagerDelegate {
     }
     
     func connectedDevicesChanged(manager : MCManager, connectedDevice: MCPeerID, didChangeState: Int) {
-        let message : [String:AnyObject] = [
+        var message : [String:AnyObject] = [
             "type":"hello",
-            "role":"receiver"
         ]
+        message["role"] = parent.myPeer?.isBroadcaster
         manager.sendMessageToPeer(connectedDevice, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(message))
 }
     

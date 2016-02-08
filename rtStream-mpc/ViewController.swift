@@ -16,7 +16,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
-        rtStream = RTStream(serviceType: "Test")
+        rtStream = RTStream.sharedInstance
     }
 
     @IBAction func RTTPressed(sender: AnyObject) {

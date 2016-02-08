@@ -14,10 +14,11 @@ class RTStream{
     var controlChanel:ControlChanelManager!
     var myPeer:rtStreamPeer?
     var connectedPeers:[rtStreamPeer]=[]
-    
-    init(serviceType:String){
+    static let sharedInstance = RTStream(serviceType: "rtStream")
+    private init(serviceType:String){
         mcManager=MCManager(serviceTyeName: serviceType)
-        myPeer=rtStreamPeer(peerID: mcManager.getMyPeerID(),isBroadcaster: false)
+        myPeer=rtStreamPeer(peerID: mcManager.getMyPeerID(),isBroadcaster: true)
+        connectedPeers.append(myPeer!)
         controlChanel=ControlChanelManager(parent: self, transportManager: mcManager)
         mcManager.delegate=controlChanel
         sleep(5)
@@ -39,5 +40,9 @@ class RTStream{
         }
         
         self.connectedPeers = self.connectedPeers.filter({$0 !== lostPeer})
+    }
+    
+    func getConnectedPeers()->[rtStreamPeer]{
+        return self.connectedPeers
     }
 }

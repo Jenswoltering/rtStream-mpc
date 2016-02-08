@@ -27,7 +27,7 @@ class ControlChanelManager :MCManagerDelegate {
         var message : [String:AnyObject] = [
             "type":"hello",
         ]
-        message["role"] = parent.myPeer?.isBroadcaster
+        message["isBroadcaster"] = parent.myPeer?.isBroadcaster
         manager.sendMessageToPeer(connectedDevice, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(message))
 }
     
@@ -40,7 +40,7 @@ class ControlChanelManager :MCManagerDelegate {
         case "hello":
             print("hello")
             var isBroadcaster:Bool
-            if msgDict!["role"] as! String == "receiver"{
+            if msgDict!["isBroadcaster"] as! Bool == false{
                 isBroadcaster=false}
             else{
                 isBroadcaster=true

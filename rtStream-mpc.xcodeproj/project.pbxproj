@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670E61C68AD5600F5779D /* PlayerViewController.swift */; };
 		7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364AFE21C4A7EA900509138 /* AppDelegate.swift */; };
 		7364AFE51C4A7EA900509138 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364AFE41C4A7EA900509138 /* ViewController.swift */; };
 		7364AFE81C4A7EA900509138 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7364AFE61C4A7EA900509138 /* Main.storyboard */; };
@@ -18,6 +19,8 @@
 		73B62B731C5817DE0000B713 /* rtStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B62B721C5817DE0000B713 /* rtStream.swift */; };
 		73B62B751C5957AC0000B713 /* ControlChanelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B62B741C5957AC0000B713 /* ControlChanelManager.swift */; };
 		73D1429A1C60B65500175F65 /* rtStreamPeer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D142991C60B65400175F65 /* rtStreamPeer.swift */; };
+		73D1429E1C6256CA00175F65 /* connectedPeersTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D1429D1C6256CA00175F65 /* connectedPeersTableViewController.swift */; };
+		73D142A01C6605F400175F65 /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73D1429F1C6605F400175F65 /* SettingsTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		735670E61C68AD5600F5779D /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		7364AFDF1C4A7EA900509138 /* rtStream-mpc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "rtStream-mpc.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7364AFE21C4A7EA900509138 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7364AFE41C4A7EA900509138 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -55,6 +59,8 @@
 		73B62B721C5817DE0000B713 /* rtStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rtStream.swift; sourceTree = "<group>"; };
 		73B62B741C5957AC0000B713 /* ControlChanelManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControlChanelManager.swift; sourceTree = "<group>"; };
 		73D142991C60B65400175F65 /* rtStreamPeer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rtStreamPeer.swift; sourceTree = "<group>"; };
+		73D1429D1C6256CA00175F65 /* connectedPeersTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = connectedPeersTableViewController.swift; sourceTree = "<group>"; };
+		73D1429F1C6605F400175F65 /* SettingsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,7 +114,10 @@
 				7364AFE21C4A7EA900509138 /* AppDelegate.swift */,
 				7364AFE41C4A7EA900509138 /* ViewController.swift */,
 				7364AFE61C4A7EA900509138 /* Main.storyboard */,
+				735670E61C68AD5600F5779D /* PlayerViewController.swift */,
 				73B62B721C5817DE0000B713 /* rtStream.swift */,
+				73D1429D1C6256CA00175F65 /* connectedPeersTableViewController.swift */,
+				73D1429F1C6605F400175F65 /* SettingsTableViewController.swift */,
 				73D142991C60B65400175F65 /* rtStreamPeer.swift */,
 				73B62B741C5957AC0000B713 /* ControlChanelManager.swift */,
 				7364B0121C56338500509138 /* MCManager.swift */,
@@ -272,7 +281,10 @@
 				73D1429A1C60B65500175F65 /* rtStreamPeer.swift in Sources */,
 				73B62B751C5957AC0000B713 /* ControlChanelManager.swift in Sources */,
 				7364B0131C56338600509138 /* MCManager.swift in Sources */,
+				73D142A01C6605F400175F65 /* SettingsTableViewController.swift in Sources */,
+				735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */,
 				7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */,
+				73D1429E1C6256CA00175F65 /* connectedPeersTableViewController.swift in Sources */,
 				73B62B731C5817DE0000B713 /* rtStream.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -416,7 +428,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "rtStream-mpc/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.hamburg.haw.mt.swlab.rtStream-mpc";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -428,7 +440,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = "rtStream-mpc/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "de.hamburg.haw.mt.swlab.rtStream-mpc";
 				PRODUCT_NAME = "$(TARGET_NAME)";

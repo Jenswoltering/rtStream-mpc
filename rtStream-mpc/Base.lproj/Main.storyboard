@@ -8,7 +8,7 @@
         <!--Debug-->
         <scene sceneID="eeG-ko-1Fx">
             <objects>
-                <viewController title="Debug" id="E9a-EL-566" customClass="ViewController" customModule="rtStream_mpc" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Debug" id="E9a-EL-566" customClass="DebugViewController" customModule="rtStream_mpc" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="fVd-m2-Xlk"/>
                         <viewControllerLayoutGuide type="bottom" id="SIq-0j-iJ8"/>
@@ -152,15 +152,15 @@
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LQM-aN-yxP">
-                                                    <rect key="frame" x="543" y="6" width="51" height="31"/>
-                                                </switch>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Advertise device" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MbN-gF-K8B">
                                                     <rect key="frame" x="17" y="11" width="135" height="21"/>
                                                     <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="17"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LQM-aN-yxP">
+                                                    <rect key="frame" x="543" y="6" width="51" height="31"/>
+                                                </switch>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="MbN-gF-K8B" firstAttribute="leading" secondItem="gFT-Ro-rr1" secondAttribute="leadingMargin" constant="9" id="A9P-PK-eEg"/>

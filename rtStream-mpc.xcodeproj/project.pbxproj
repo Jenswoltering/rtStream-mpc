@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670E61C68AD5600F5779D /* PlayerViewController.swift */; };
 		7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364AFE21C4A7EA900509138 /* AppDelegate.swift */; };
-		7364AFE51C4A7EA900509138 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364AFE41C4A7EA900509138 /* ViewController.swift */; };
+		7364AFE51C4A7EA900509138 /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364AFE41C4A7EA900509138 /* DebugViewController.swift */; };
 		7364AFE81C4A7EA900509138 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7364AFE61C4A7EA900509138 /* Main.storyboard */; };
 		7364AFEA1C4A7EA900509138 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7364AFE91C4A7EA900509138 /* Assets.xcassets */; };
 		7364AFED1C4A7EA900509138 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7364AFEB1C4A7EA900509138 /* LaunchScreen.storyboard */; };
@@ -44,7 +44,7 @@
 		735670E61C68AD5600F5779D /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		7364AFDF1C4A7EA900509138 /* rtStream-mpc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "rtStream-mpc.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7364AFE21C4A7EA900509138 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		7364AFE41C4A7EA900509138 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		7364AFE41C4A7EA900509138 /* DebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugViewController.swift; sourceTree = "<group>"; };
 		7364AFE71C4A7EA900509138 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		7364AFE91C4A7EA900509138 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7364AFEC1C4A7EA900509138 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -88,6 +88,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		735670E81C68BD6600F5779D /* VCs */ = {
+			isa = PBXGroup;
+			children = (
+				7364AFE41C4A7EA900509138 /* DebugViewController.swift */,
+				735670E61C68AD5600F5779D /* PlayerViewController.swift */,
+				73D1429D1C6256CA00175F65 /* connectedPeersTableViewController.swift */,
+				73D1429F1C6605F400175F65 /* SettingsTableViewController.swift */,
+			);
+			name = VCs;
+			sourceTree = "<group>";
+		};
 		7364AFD61C4A7EA900509138 = {
 			isa = PBXGroup;
 			children = (
@@ -112,12 +123,9 @@
 			isa = PBXGroup;
 			children = (
 				7364AFE21C4A7EA900509138 /* AppDelegate.swift */,
-				7364AFE41C4A7EA900509138 /* ViewController.swift */,
+				735670E81C68BD6600F5779D /* VCs */,
 				7364AFE61C4A7EA900509138 /* Main.storyboard */,
-				735670E61C68AD5600F5779D /* PlayerViewController.swift */,
 				73B62B721C5817DE0000B713 /* rtStream.swift */,
-				73D1429D1C6256CA00175F65 /* connectedPeersTableViewController.swift */,
-				73D1429F1C6605F400175F65 /* SettingsTableViewController.swift */,
 				73D142991C60B65400175F65 /* rtStreamPeer.swift */,
 				73B62B741C5957AC0000B713 /* ControlChanelManager.swift */,
 				7364B0121C56338500509138 /* MCManager.swift */,
@@ -277,7 +285,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7364AFE51C4A7EA900509138 /* ViewController.swift in Sources */,
+				7364AFE51C4A7EA900509138 /* DebugViewController.swift in Sources */,
 				73D1429A1C60B65500175F65 /* rtStreamPeer.swift in Sources */,
 				73B62B751C5957AC0000B713 /* ControlChanelManager.swift in Sources */,
 				7364B0131C56338600509138 /* MCManager.swift in Sources */,

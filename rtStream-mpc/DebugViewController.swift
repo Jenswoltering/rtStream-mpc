@@ -9,7 +9,7 @@
 import UIKit
 import MultipeerConnectivity
 
-class ViewController: UIViewController {
+class DebugViewController: UIViewController {
     @IBOutlet weak var RTTButton: UIButton!
 
     var rtStream :RTStream?

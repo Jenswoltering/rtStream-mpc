@@ -14,6 +14,7 @@ class RTStream{
     var controlChanel:ControlChanelManager!
     var myPeer:rtStreamPeer?
     var connectedPeers:[rtStreamPeer]=[]
+    var cameraManager:CameraManager!
     static let sharedInstance = RTStream(serviceType: "rtStream")
     private init(serviceType:String){
         mcManager=MCManager(serviceTyeName: serviceType)
@@ -23,6 +24,8 @@ class RTStream{
         mcManager.delegate=controlChanel
         sleep(5)
         mcManager.startBrowsing()
+        cameraManager = CameraManager()
+        
     }
     
     func addPeer(connectedPeer:MCPeerID, isBroacaster:Bool){

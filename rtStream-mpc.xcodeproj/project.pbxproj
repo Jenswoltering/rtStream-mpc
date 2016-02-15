@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670E61C68AD5600F5779D /* PlayerViewController.swift */; };
+		735670EA1C68BF9A00F5779D /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670E91C68BF9A00F5779D /* CameraManager.swift */; };
+		735670EC1C71D5D900F5779D /* Codec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670EB1C71D5D900F5779D /* Codec.swift */; };
 		7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364AFE21C4A7EA900509138 /* AppDelegate.swift */; };
 		7364AFE51C4A7EA900509138 /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364AFE41C4A7EA900509138 /* DebugViewController.swift */; };
 		7364AFE81C4A7EA900509138 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7364AFE61C4A7EA900509138 /* Main.storyboard */; };
@@ -42,6 +44,8 @@
 
 /* Begin PBXFileReference section */
 		735670E61C68AD5600F5779D /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
+		735670E91C68BF9A00F5779D /* CameraManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
+		735670EB1C71D5D900F5779D /* Codec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Codec.swift; sourceTree = "<group>"; };
 		7364AFDF1C4A7EA900509138 /* rtStream-mpc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "rtStream-mpc.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7364AFE21C4A7EA900509138 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7364AFE41C4A7EA900509138 /* DebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugViewController.swift; sourceTree = "<group>"; };
@@ -127,6 +131,8 @@
 				7364AFE61C4A7EA900509138 /* Main.storyboard */,
 				73B62B721C5817DE0000B713 /* rtStream.swift */,
 				73D142991C60B65400175F65 /* rtStreamPeer.swift */,
+				735670E91C68BF9A00F5779D /* CameraManager.swift */,
+				735670EB1C71D5D900F5779D /* Codec.swift */,
 				73B62B741C5957AC0000B713 /* ControlChanelManager.swift */,
 				7364B0121C56338500509138 /* MCManager.swift */,
 				7364AFE91C4A7EA900509138 /* Assets.xcassets */,
@@ -289,11 +295,13 @@
 				73D1429A1C60B65500175F65 /* rtStreamPeer.swift in Sources */,
 				73B62B751C5957AC0000B713 /* ControlChanelManager.swift in Sources */,
 				7364B0131C56338600509138 /* MCManager.swift in Sources */,
+				735670EA1C68BF9A00F5779D /* CameraManager.swift in Sources */,
 				73D142A01C6605F400175F65 /* SettingsTableViewController.swift in Sources */,
 				735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */,
 				7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */,
 				73D1429E1C6256CA00175F65 /* connectedPeersTableViewController.swift in Sources */,
 				73B62B731C5817DE0000B713 /* rtStream.swift in Sources */,
+				735670EC1C71D5D900F5779D /* Codec.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

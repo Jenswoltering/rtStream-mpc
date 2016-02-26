@@ -123,7 +123,8 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             //connection.videoMirrored = true
             connection.videoMirrored = false
         }
-        sessionDelegate?.cameraSessionDidOutputSampleBuffer?(sampleBuffer)
+        Decoder.H264_Decoder.decodeFrame(sampleBuffer)
+        //sessionDelegate?.cameraSessionDidOutputSampleBuffer?(sampleBuffer)
     }
     
 }

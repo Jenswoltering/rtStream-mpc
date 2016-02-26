@@ -25,6 +25,7 @@ class RTStream{
         sleep(5)
         mcManager.startBrowsing()
         cameraManager = CameraManager()
+        cameraManager.startCamera()
         
     }
     

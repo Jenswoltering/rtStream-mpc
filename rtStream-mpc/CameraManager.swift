@@ -9,7 +9,7 @@ import UIKit
 import Foundation
 import AVFoundation
 import CoreMedia
-import CoreImage
+import CoreImage 
 
 @objc protocol CameraManagerDelegate {
     optional func cameraSessionDidOutputSampleBuffer(sampleBuffer: CMSampleBuffer!)
@@ -28,6 +28,7 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     override init(){
         super.init()
         captureSession = AVCaptureSession()
+        captureSession.sessionPreset = AVCaptureSessionPresetiFrame960x540
         sessionQueue = dispatch_queue_create("CameraQueue", DISPATCH_QUEUE_SERIAL)
         setupCamera()
     }
@@ -123,7 +124,9 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             //connection.videoMirrored = true
             connection.videoMirrored = false
         }
-        Decoder.H264_Decoder.decodeFrame(sampleBuffer)
+        Codec.JPEG.decodeFrame(sampleBuffer) { (result) -> Void in
+            NSLog(NSDate().timeIntervalSince1970.description)
+        }
         //sessionDelegate?.cameraSessionDidOutputSampleBuffer?(sampleBuffer)
     }
     

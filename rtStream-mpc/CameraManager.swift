@@ -11,11 +11,12 @@ import AVFoundation
 import CoreMedia
 import CoreImage 
 
-@objc protocol CameraManagerDelegate {
-    optional func cameraSessionDidOutputSampleBuffer(sampleBuffer: CMSampleBuffer!)
+protocol CameraManagerDelegate {
+    func cameraSessionDidOutputSampleBuffer(sampleBuffer: CMSampleBuffer!)
+    func cameraSessionDidOutputFrameAsH264Stream(stream: NSData!)
 }
 
-class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, CodecDelegate {
     
     var captureSession: AVCaptureSession!
     var captureDevice: AVCaptureDevice?
@@ -28,8 +29,9 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     override init(){
         super.init()
         captureSession = AVCaptureSession()
-        captureSession.sessionPreset = AVCaptureSessionPresetiFrame960x540
+        captureSession.sessionPreset = AVCaptureSessionPreset1280x720
         sessionQueue = dispatch_queue_create("CameraQueue", DISPATCH_QUEUE_SERIAL)
+        Codec.H264_Decoder.delegate=self
         setupCamera()
     }
     
@@ -57,6 +59,9 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
     }
     
+    func preparedFrameForStream(stream: NSData) {
+        sessionDelegate?.cameraSessionDidOutputFrameAsH264Stream(stream)
+    }
     private func setupCamera(){
         if !authorizeCamera() {
             return
@@ -90,7 +95,6 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         if captureSession.canAddOutput(videoDeviceOut) {
             captureSession.addOutput(videoDeviceOut)
         }
-        
     }
     
     func teardownCamera() {
@@ -124,9 +128,8 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             //connection.videoMirrored = true
             connection.videoMirrored = false
         }
-        Codec.JPEG.decodeFrame(sampleBuffer) { (result) -> Void in
-            NSLog(NSDate().timeIntervalSince1970.description)
-        }
+        Codec.H264_Decoder.encodeFrame(sampleBuffer)
+        
         //sessionDelegate?.cameraSessionDidOutputSampleBuffer?(sampleBuffer)
     }
     

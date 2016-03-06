@@ -8,6 +8,7 @@
 
 import Foundation
 import MultipeerConnectivity
+import CoreMedia
 
 class ControlChanelManager :MCManagerDelegate {
     var usePayload:Bool = true
@@ -60,6 +61,9 @@ class ControlChanelManager :MCManagerDelegate {
             msgDict!["endTime"]=incomingTimeInMillis - processingTime
             self.getRoundTripTimeForPeer(fromPeer, response: true, rttPackage: msgDict!)
             
+        case "image":
+            var nalu :NALU = NALU(streamRawBytes: msgDict!["frame"] as! NSData)
+            NSLog(CMSampleBufferGetFormatDescription(nalu.getSampleBuffer()).debugDescription)
         default:
             print("invalid message type")
         }

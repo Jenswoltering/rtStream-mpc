@@ -25,7 +25,8 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
     var videoDeviceOut: AVCaptureVideoDataOutput!
     var stillImageOutput: AVCaptureStillImageOutput!
     var sessionDelegate: CameraManagerDelegate?
-    
+    var outputQueue :[NSData] = []
+    let criticalQueueAccess: dispatch_queue_t = dispatch_queue_create("accessOutputQueue", DISPATCH_QUEUE_CONCURRENT)
     override init(){
         super.init()
         captureSession = AVCaptureSession()
@@ -59,8 +60,52 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
         }
     }
     
+    func addToOutputQueue(frameAsNSData frame:NSData){
+        if outputQueue.count < 3 {
+            dispatch_barrier_sync(criticalQueueAccess, { () -> Void in
+                self.outputQueue.append(frame)
+            })
+            sendFrame()
+        }else{
+            NSLog("buffer overflow")
+        }
+    }
+    
+    func sendFrame(){
+        if RTStream.sharedInstance.getConnectedPeers().count >= 1{
+            if self.outputQueue.isEmpty == false{
+                //define message
+                var message : [String:AnyObject] = ["type":"image"]
+                dispatch_barrier_sync(criticalQueueAccess, { () -> Void in
+                    let buffer = self.outputQueue.first
+                    message["frame"] = buffer
+                })
+                RTStream.sharedInstance.mcManager.sendMessageToPeer((RTStream.sharedInstance.getConnectedPeers().last?.peerID)!, messageToSend: NSKeyedArchiver.archivedDataWithRootObject(message))
+                dispatch_barrier_sync(criticalQueueAccess, { () -> Void in
+                    self.outputQueue.removeFirst()
+                })
+            }
+
+        }
+    }
+    
     func preparedFrameForStream(stream: NSData) {
-        sessionDelegate?.cameraSessionDidOutputFrameAsH264Stream(stream)
+        
+        addToOutputQueue(frameAsNSData: stream)
+//        dispatch_async(RTStream.sharedInstance.GlobalUserInteractiveQueue, {
+//            weak var streamData = stream
+//            if RTStream.sharedInstance.getConnectedPeers().count >= 1{
+//                //RTStream.sharedInstance.stream?.addDataToOutBuffer(stream)
+//                //RTStream.sharedInstance.outStream?.pollingStream(streamData!)
+//                var message : [String:AnyObject] = [
+//                    "type":"image",
+//                ]
+//                message["frame"] = stream
+//                RTStream.sharedInstance.mcManager.sendMessageToPeer((RTStream.sharedInstance.getConnectedPeers().last?.peerID)!, messageToSend: stream)
+//            }
+//            streamData = nil
+//        //sessionDelegate?.cameraSessionDidOutputFrameAsH264Stream(stream)
+//        })
     }
     private func setupCamera(){
         if !authorizeCamera() {

@@ -10,36 +10,40 @@ import UIKit
 import AVFoundation
 import MultipeerConnectivity
 
-class DebugViewController: UIViewController {
+class DebugViewController: UIViewController, StreamDelegate {
     @IBOutlet weak var RTTButton: UIButton!
-    var displayLayer = AVSampleBufferDisplayLayer()
+    var displayLayer :AVSampleBufferDisplayLayer?
     var rtStream :RTStream?
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
         rtStream = RTStream.sharedInstance
-        displayLayer.frame = self.view.bounds
-        self.view.layer.addSublayer(displayLayer)
+        displayLayer = rtStream?.displayLayer
+        displayLayer!.frame = self.view.bounds
+        self.view.layer.addSublayer(displayLayer!)
 //        var controlTimebase :CMTimebaseRef?
 //        CMTimebaseCreateWithMasterClock(kCFAllocatorDefault , CMClockGetHostTimeClock(), &controlTimebase)
 //        displayLayer.controlTimebase = controlTimebase
 //        CMTimebaseSetTime(displayLayer.controlTimebase!, CMTime(value: 5, timescale: 1))
 //        CMTimebaseSetRate(displayLayer.controlTimebase!, 1)
-        displayLayer.backgroundColor = UIColor.redColor().CGColor
+        displayLayer!.backgroundColor = UIColor.redColor().CGColor
     }
-
-    func sampleOutput(frame: CMSampleBuffer!, pts:CMTime) {
-        if frame != nil {
-//            var newFrame: CMSampleBuffer?
-//            var sampleTimingInfo = CMSampleTimingInfo(duration: kCMTimeInvalid, presentationTimeStamp: pts, decodeTimeStamp: kCMTimeInvalid)
-//            CMSampleBufferCreateCopyWithNewTiming(kCFAllocatorDefault, frame, 1, &sampleTimingInfo, &newFrame)
+    
+    func extractedFromStream(frame: CMSampleBuffer) {
+        
+            //            var newFrame: CMSampleBuffer?
+            //            var sampleTimingInfo = CMSampleTimingInfo(duration: kCMTimeInvalid, presentationTimeStamp: pts, decodeTimeStamp: kCMTimeInvalid)
+            //            CMSampleBufferCreateCopyWithNewTiming(kCFAllocatorDefault, frame, 1, &sampleTimingInfo, &newFrame)
             
-           // NSLog(newFrame.debugDescription)
-            displayLayer.enqueueSampleBuffer(frame!)
-            displayLayer.setNeedsDisplay()
-        }
+            // NSLog(newFrame.debugDescription)
+            displayLayer!.enqueueSampleBuffer(frame)
+            displayLayer!.setNeedsDisplay()
+        
+
     }
+    
+    
     
     @IBAction func RTTPressed(sender: AnyObject) {
         if rtStream?.connectedPeers.isEmpty == false{

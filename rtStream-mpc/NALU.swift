@@ -16,8 +16,9 @@ class NALU {
     var blockBuffer :NSMutableData = NSMutableData()
     
     
-    init(streamRawBytes: NSMutableData){
-        self.rawBytes = streamRawBytes
+    init(streamRawBytes: NSData){
+        
+        self.rawBytes = NSMutableData(data: streamRawBytes)
         processStreamRawBytes()
     }
     

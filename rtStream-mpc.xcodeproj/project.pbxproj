@@ -18,6 +18,7 @@
 		7364AFF81C4A7EA900509138 /* rtStream_mpcTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364AFF71C4A7EA900509138 /* rtStream_mpcTests.swift */; };
 		7364B0031C4A7EA900509138 /* rtStream_mpcUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364B0021C4A7EA900509138 /* rtStream_mpcUITests.swift */; };
 		7364B0131C56338600509138 /* MCManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364B0121C56338500509138 /* MCManager.swift */; };
+		736AFFFA1C875DEA00AA4FDF /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736AFFF91C875DEA00AA4FDF /* Stream.swift */; };
 		73A67CBA1C83244D00C058D2 /* NALU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73A67CB91C83244D00C058D2 /* NALU.swift */; };
 		73B62B731C5817DE0000B713 /* rtStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B62B721C5817DE0000B713 /* rtStream.swift */; };
 		73B62B751C5957AC0000B713 /* ControlChanelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73B62B741C5957AC0000B713 /* ControlChanelManager.swift */; };
@@ -61,6 +62,7 @@
 		7364B0021C4A7EA900509138 /* rtStream_mpcUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rtStream_mpcUITests.swift; sourceTree = "<group>"; };
 		7364B0041C4A7EA900509138 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7364B0121C56338500509138 /* MCManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MCManager.swift; sourceTree = "<group>"; };
+		736AFFF91C875DEA00AA4FDF /* Stream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stream.swift; sourceTree = "<group>"; };
 		73A67CB91C83244D00C058D2 /* NALU.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NALU.swift; sourceTree = "<group>"; };
 		73B62B721C5817DE0000B713 /* rtStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rtStream.swift; sourceTree = "<group>"; };
 		73B62B741C5957AC0000B713 /* ControlChanelManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControlChanelManager.swift; sourceTree = "<group>"; };
@@ -136,6 +138,7 @@
 				735670E91C68BF9A00F5779D /* CameraManager.swift */,
 				735670EB1C71D5D900F5779D /* Codec.swift */,
 				73A67CB91C83244D00C058D2 /* NALU.swift */,
+				736AFFF91C875DEA00AA4FDF /* Stream.swift */,
 				73B62B741C5957AC0000B713 /* ControlChanelManager.swift */,
 				7364B0121C56338500509138 /* MCManager.swift */,
 				7364AFE91C4A7EA900509138 /* Assets.xcassets */,
@@ -303,6 +306,7 @@
 				73D142A01C6605F400175F65 /* SettingsTableViewController.swift in Sources */,
 				735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */,
 				7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */,
+				736AFFFA1C875DEA00AA4FDF /* Stream.swift in Sources */,
 				73D1429E1C6256CA00175F65 /* connectedPeersTableViewController.swift in Sources */,
 				73B62B731C5817DE0000B713 /* rtStream.swift in Sources */,
 				735670EC1C71D5D900F5779D /* Codec.swift in Sources */,

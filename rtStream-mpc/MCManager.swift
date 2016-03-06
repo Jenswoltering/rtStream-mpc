@@ -8,7 +8,7 @@
 
 import UIKit
 import MultipeerConnectivity
-
+import CoreMedia
 
 protocol MCManagerDelegate {
     
@@ -112,11 +112,23 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     
     func session(session: MCSession, didReceiveData data: NSData, fromPeer peerID: MCPeerID) {
         //print("didReceiveData:")
+        NSLog("Dateigröße: " + data.length.description)
+        
+        
+        
         self.delegate?.incomingMassage(self, fromPeer: peerID, msg: data)
+        
+        
+        
+       
+            
+        
         
     }
     
     func session(session: MCSession, didReceiveStream stream: NSInputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
+        RTStream.sharedInstance.inStream = Stream(inputStream: stream, outputStream: nil)
+        
         print("\(streamName) : didReceiveStream")
         
     }

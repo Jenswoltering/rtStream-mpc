@@ -20,6 +20,10 @@ class RTStream :CameraManagerDelegate{
     var connectedPeers:[rtStreamPeer]=[]
     var cameraManager:CameraManager!
     var streamBuffer:[NSMutableData]=[]
+    var oStream :NSOutputStream?
+    var outStream :Stream?
+    var inStream :Stream?
+    var displayLayer = AVSampleBufferDisplayLayer()
     
     static let sharedInstance = RTStream(serviceType: "rtStream")
     
@@ -46,12 +50,14 @@ class RTStream :CameraManagerDelegate{
     //------------------------------------------------------------
     
     
-    
     private init(serviceType:String){
         
         mcManager=MCManager(serviceTyeName: serviceType)
         myPeer=rtStreamPeer(peerID: mcManager.getMyPeerID(),isBroadcaster: true)
         connectedPeers.append(myPeer!)
+        outStream = nil
+        inStream = nil
+        oStream = nil
         controlChanel=ControlChanelManager(parent: self, transportManager: mcManager)
         mcManager.delegate=controlChanel
         mcManager.startBrowsing()
@@ -67,6 +73,24 @@ class RTStream :CameraManagerDelegate{
         
         let newPeer=rtStreamPeer(peerID: connectedPeer, isBroadcaster: isBroacaster)
         self.connectedPeers.append(newPeer)
+        dispatch_sync(GlobalUtilityQueue, {
+        do {
+            
+                //self.oStream = try self.mcManager.session.startStreamWithName("test", toPeer: connectedPeer)
+                //self.outStream = Stream(inputStream: nil, outputStream: self.oStream)
+            
+            
+        }catch{
+            
+        }
+        })
+    }
+    
+    func updateDisplay(frame: CMSampleBuffer){
+        dispatch_sync(GlobalMainQueue, {
+            self.displayLayer.enqueueSampleBuffer(frame)
+            self.displayLayer.setNeedsDisplay()
+        })
     }
     
     func deletePeer(lostPeer:MCPeerID){
@@ -91,17 +115,18 @@ class RTStream :CameraManagerDelegate{
     }
     
     func cameraSessionDidOutputFrameAsH264Stream(stream: NSData!) {
-        var msgDict :[String:AnyObject]! = [
-            "type":"rttreq",
-            "stream": ""
-        ]
-
-        msgDict!["type"] = "stream"
-        msgDict!["stream"] = stream as AnyObject
-        if connectedPeers.count == 2{
-            mcManager.sendMessageToPeer(connectedPeers[1].peerID, messageToSend: NSKeyedArchiver.archivedDataWithRootObject(msgDict!))
-
-        }
-        NSLog("data coming")
+//        var msgDict :[String:AnyObject]! = [
+//            "type":"rttreq",
+//            "stream": ""
+//        ]
+//
+//        msgDict!["type"] = "stream"
+//        msgDict!["stream"] = stream as AnyObject
+//        if connectedPeers.count == 2{
+//            //mcManager.sendMessageToPeer(connectedPeers[1].peerID, messageToSend: NSKeyedArchiver.archivedDataWithRootObject(msgDict!))
+//
+//        }
+//        
+//        NSLog("data coming")
     }
 }

@@ -59,7 +59,7 @@ class Codec {
     private init(){
         self.startCodeLength  = 4
         self.startCode = [0x00, 0x00, 0x00, 0x01]
-        self.stopCode = [0x00, 0x00, 0x00, 0x11]
+        self.stopCode = [0x01, 0xFF, 0x01, 0xFF]
         var status:OSStatus
         status = VTCompressionSessionCreate(
             kCFAllocatorDefault,
@@ -137,7 +137,7 @@ class Codec {
     }
     
     func processFrameForStream(sampleBuffer: CMSampleBuffer?){
-        let sampleData=NSMutableData()
+        let sampleData =  NSMutableData()
         let formatDesrciption :CMFormatDescriptionRef = CMSampleBufferGetFormatDescription(sampleBuffer!)!
         let sps = UnsafeMutablePointer<UnsafePointer<UInt8>>.alloc(1)
         let pps = UnsafeMutablePointer<UnsafePointer<UInt8>>.alloc(1)
@@ -169,7 +169,9 @@ class Codec {
             sampleData.appendBytes(Codec.H264_Decoder.startCode, length: Codec.H264_Decoder.startCodeLength)
             sampleData.appendBytes(sampleBytes, length: length)
             sampleData.appendBytes(Codec.H264_Decoder.stopCode, length: Codec.H264_Decoder.startCodeLength)
+            sampleBytes.dealloc(length)
         }
+        
         
         //Send the sampleBuffer here-------------------------------------
         
@@ -177,14 +179,29 @@ class Codec {
         
         //---------------------------------------------------------------
         
-        let nalu:NALU = NALU(streamRawBytes: sampleData)
-        let newSampleBuffer :CMSampleBuffer = nalu.getSampleBuffer()
-        if CMFormatDescriptionEqual(CMSampleBufferGetFormatDescription(newSampleBuffer), formatDesrciption){
-            NSLog("Equal")
-        }
+//        let nalu:NALU = NALU(streamRawBytes: sampleData)
+//        let newSampleBuffer :CMSampleBuffer = nalu.getSampleBuffer()
+//        if CMFormatDescriptionEqual(CMSampleBufferGetFormatDescription(newSampleBuffer), formatDesrciption){
+//            NSLog("Equal")
+//        }
         let stream = NSData(data: sampleData)
         self.delegate?.preparedFrameForStream(stream)
-
+        
+        sps.destroy()
+        spsLength.destroy()
+        spsCount.destroy()
+        pps.destroy()
+        ppsLength.destroy()
+        ppsCount.destroy()
+        
+        sps.dealloc(1)
+        spsLength.dealloc(1)
+        spsCount.dealloc(1)
+        pps.dealloc(1)
+        ppsLength.dealloc(1)
+        ppsCount.dealloc(1)
+ 
+        
     }
     
     private var callback:VTCompressionOutputCallback = {(
@@ -198,7 +215,8 @@ class Codec {
             return
         }
         if (status == noErr){
-                Codec.H264_Decoder.processFrameForStream(sampleBuffer)
+            Codec.H264_Decoder.processFrameForStream(sampleBuffer)
         }
+
     }
 }

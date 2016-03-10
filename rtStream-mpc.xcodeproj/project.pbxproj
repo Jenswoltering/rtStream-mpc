@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		730967381C8DE60B007B32F8 /* Strategies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 730967371C8DE60B007B32F8 /* Strategies.swift */; };
 		735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670E61C68AD5600F5779D /* PlayerViewController.swift */; };
 		735670EA1C68BF9A00F5779D /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670E91C68BF9A00F5779D /* CameraManager.swift */; };
 		735670EC1C71D5D900F5779D /* Codec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670EB1C71D5D900F5779D /* Codec.swift */; };
@@ -45,6 +46,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		730967371C8DE60B007B32F8 /* Strategies.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Strategies.swift; sourceTree = "<group>"; };
 		735670E61C68AD5600F5779D /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		735670E91C68BF9A00F5779D /* CameraManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		735670EB1C71D5D900F5779D /* Codec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Codec.swift; sourceTree = "<group>"; };
@@ -96,6 +98,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		730967351C8C4D20007B32F8 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				735670EB1C71D5D900F5779D /* Codec.swift */,
+				73A67CB91C83244D00C058D2 /* NALU.swift */,
+				736AFFF91C875DEA00AA4FDF /* Stream.swift */,
+			);
+			name = util;
+			sourceTree = "<group>";
+		};
+		730967361C8C4D3B007B32F8 /* model */ = {
+			isa = PBXGroup;
+			children = (
+				73D142991C60B65400175F65 /* rtStreamPeer.swift */,
+			);
+			name = model;
+			sourceTree = "<group>";
+		};
 		735670E81C68BD6600F5779D /* VCs */ = {
 			isa = PBXGroup;
 			children = (
@@ -131,14 +151,13 @@
 			isa = PBXGroup;
 			children = (
 				7364AFE21C4A7EA900509138 /* AppDelegate.swift */,
+				730967361C8C4D3B007B32F8 /* model */,
+				730967351C8C4D20007B32F8 /* util */,
 				735670E81C68BD6600F5779D /* VCs */,
 				7364AFE61C4A7EA900509138 /* Main.storyboard */,
 				73B62B721C5817DE0000B713 /* rtStream.swift */,
-				73D142991C60B65400175F65 /* rtStreamPeer.swift */,
+				730967371C8DE60B007B32F8 /* Strategies.swift */,
 				735670E91C68BF9A00F5779D /* CameraManager.swift */,
-				735670EB1C71D5D900F5779D /* Codec.swift */,
-				73A67CB91C83244D00C058D2 /* NALU.swift */,
-				736AFFF91C875DEA00AA4FDF /* Stream.swift */,
 				73B62B741C5957AC0000B713 /* ControlChanelManager.swift */,
 				7364B0121C56338500509138 /* MCManager.swift */,
 				7364AFE91C4A7EA900509138 /* Assets.xcassets */,
@@ -307,6 +326,7 @@
 				735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */,
 				7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */,
 				736AFFFA1C875DEA00AA4FDF /* Stream.swift in Sources */,
+				730967381C8DE60B007B32F8 /* Strategies.swift in Sources */,
 				73D1429E1C6256CA00175F65 /* connectedPeersTableViewController.swift in Sources */,
 				73B62B731C5817DE0000B713 /* rtStream.swift in Sources */,
 				735670EC1C71D5D900F5779D /* Codec.swift in Sources */,

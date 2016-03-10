@@ -178,11 +178,11 @@ public class Stream :NSObject, NSStreamDelegate{
     }
     
     private func seperateFrameFromBuffer(endcodePosition :Int){
-        var naluData :NSMutableData = NSMutableData(bytes: UnsafePointer(self.inBuffer), length: endcodePosition)
+        let naluData :NSMutableData = NSMutableData(bytes: UnsafePointer(self.inBuffer), length: endcodePosition)
         //NSLog(naluData.description)
         let rangeToDel :Range = Range(start: 0, end: endcodePosition+1)
         self.inBuffer.removeRange(rangeToDel)
-        var nalu :NALU = NALU(streamRawBytes: naluData)
+        let nalu :NALU = NALU(streamRawBytes: naluData)
         NSLog(CMSampleBufferGetFormatDescription(nalu.getSampleBuffer()).debugDescription)
         //RTStream.sharedInstance.updateDisplay(nalu.getSampleBuffer())
     }

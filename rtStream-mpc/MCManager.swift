@@ -35,8 +35,6 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     
     convenience override init() {
         self.init(serviceTyeName: "rtStream")
-        
-        
     }
     
     init(serviceTyeName:String) {
@@ -113,22 +111,10 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     func session(session: MCSession, didReceiveData data: NSData, fromPeer peerID: MCPeerID) {
         //print("didReceiveData:")
         NSLog("Dateigröße: " + data.length.description)
-        
-        
-        
-        self.delegate?.incomingMassage(self, fromPeer: peerID, msg: data)
-        
-        
-        
-       
-            
-        
-        
+        self.delegate?.incomingMassage(self, fromPeer: peerID, msg: data)  
     }
     
-    func session(session: MCSession, didReceiveStream stream: NSInputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
-        RTStream.sharedInstance.inStream = Stream(inputStream: stream, outputStream: nil)
-        
+    func session(session: MCSession, didReceiveStream stream: NSInputStream, withName streamName: String, fromPeer peerID: MCPeerID) {       
         print("\(streamName) : didReceiveStream")
         
     }
@@ -141,9 +127,26 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
         print("\(resourceName) : didStarReceivingResourceWithName")
     }
     
-    func sendMessageToPeer(peer: MCPeerID, messageToSend message:NSData) ->Bool{
+    func sendMessageToAllPeers(messageToSend message:NSData) ->Bool{
         var toPeer:[MCPeerID]=[]
-        toPeer.append(peer)
+        if RTStream.sharedInstance.getConnectedPeers().isEmpty == false{
+            for peer in RTStream.sharedInstance.getConnectedPeers() {
+                toPeer.append(peer.peerID)
+            }
+            do{
+                try self.session.sendData(message, toPeers: toPeer, withMode: MCSessionSendDataMode.Unreliable)
+                return true
+            }catch{
+                return false
+            }
+        }
+        return false
+    }
+
+    
+    
+    func sendMessageToPeer(peer: MCPeerID, messageToSend message:NSData) ->Bool{
+        let toPeer:[MCPeerID]=[peer]
         do{
             try self.session.sendData(message, toPeers: toPeer, withMode: MCSessionSendDataMode.Unreliable)
             return true

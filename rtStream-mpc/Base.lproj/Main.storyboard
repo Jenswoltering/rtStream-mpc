@@ -179,15 +179,15 @@
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Mgx-8m-W2h">
-                                                    <rect key="frame" x="543" y="6" width="51" height="31"/>
-                                                </switch>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Broadcast camera" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k0w-Vs-mS1">
                                                     <rect key="frame" x="16" y="8" width="139" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Mgx-8m-W2h">
+                                                    <rect key="frame" x="543" y="6" width="51" height="31"/>
+                                                </switch>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="k0w-Vs-mS1" firstAttribute="top" secondItem="kkB-B0-d1T" secondAttribute="topMargin" id="64A-Yg-GiH"/>
@@ -236,6 +236,7 @@
                     <navigationItem key="navigationItem" id="Fbd-4M-YGN"/>
                     <connections>
                         <outlet property="displaynameTextfield" destination="Ndv-o7-qNM" id="gfx-V3-sCp"/>
+                        <outlet property="isBroadcasting" destination="Mgx-8m-W2h" id="kRv-fp-Hax"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="hxh-6z-jZx" userLabel="First Responder" sceneMemberID="firstResponder"/>

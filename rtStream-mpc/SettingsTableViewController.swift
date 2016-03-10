@@ -10,13 +10,18 @@ import UIKit
 
 class SettingsTableViewController: UITableViewController, UITextFieldDelegate {
     
+    @IBOutlet weak var isBroadcasting: UISwitch!
     @IBOutlet weak var displaynameTextfield: UITextField!
     override func viewDidLoad() {
         super.viewDidLoad()
         displaynameTextfield.delegate = self
         displaynameTextfield.userInteractionEnabled=true
         displaynameTextfield.text=RTStream.sharedInstance.myPeer?.name
-
+        if isBroadcasting.on {
+            RTStream.sharedInstance.myPeer?.isBroadcaster = true
+        }else{
+          RTStream.sharedInstance.myPeer?.isBroadcaster = false
+        }
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 

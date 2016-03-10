@@ -51,7 +51,9 @@ class NALU {
                                                                     4,
                                                                     &newCMVideoFormatDescription
         )
-        
+        if (status != noErr) {
+            NSLog("An Error occured while creating Format description")
+        }
         return newCMVideoFormatDescription!
     }
     
@@ -80,6 +82,9 @@ class NALU {
                                     length,
                                     samplebufferPtr
         )
+        if (err != noErr) {
+            NSLog("An Error occured while creating sample buffer")
+        }
         var sampleBuffer: CMSampleBuffer?
         sampleBuffer = samplebufferPtr.memory!
         return  sampleBuffer!

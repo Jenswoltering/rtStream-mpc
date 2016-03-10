@@ -15,15 +15,15 @@ import VideoToolbox
 import AVFoundation
 
 protocol CodecDelegate {
-    func preparedFrameForStream(stream: NSData)
+    func finishedEncoding(nalUnit: NSData)
 }
 
 class Codec {
     
     var compressionSession : VTCompressionSessionRef?
-    private var bitrate: Int = 35000000
-    private var width:Int32 = 1280
-    private var height:Int32 = 720
+    private var bitrate: Int = 3500
+    private var width:Int32 = 640
+    private var height:Int32 = 480
     let startCodeLength :size_t!
     let startCode:[UInt8]!
     let stopCode:[UInt8]!
@@ -35,7 +35,7 @@ class Codec {
     var delegate:CodecDelegate?
     
     static let defaultAttributes:[NSString: AnyObject] = [
-        kCVPixelBufferPixelFormatTypeKey: Int(kCVPixelFormatType_422YpCbCr8),
+        kCVPixelBufferPixelFormatTypeKey: Int(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange),
         kCVPixelBufferIOSurfacePropertiesKey: [:],
         kCVPixelBufferOpenGLESCompatibilityKey: true,
     ]
@@ -78,8 +78,12 @@ class Codec {
         if (status == noErr) {
             VTCompressionSessionPrepareToEncodeFrames(compressionSession!)
         }
-        self.destinationPixelBufferAttributes.setValue(NSNumber(unsignedInt: kCVPixelFormatType_32BGRA), forKey: kCVPixelBufferPixelFormatTypeKey as String)
+        self.destinationPixelBufferAttributes.setValue(NSNumber(unsignedInt: kCVPixelFormatType_420YpCbCr8BiPlanarFullRange), forKey: kCVPixelBufferPixelFormatTypeKey as String)
         
+    }
+    
+    func setBitrate(bitrate :Int){
+        self.bitrate = bitrate
     }
     
     func initDecompressionSession(encodedFrame:CMSampleBuffer)->Bool{
@@ -113,7 +117,9 @@ class Codec {
                                                         flags,
                                                         nil,
                                                         &infoFlags)
-            
+            if (status != noErr) {
+                NSLog("An Error occured while creating decompression session" + status.debugDescription)
+            }
         }else{
             if(initDecompressionSession(encodedFrame) == true){
                 decodeFrame(encodedFrame)
@@ -155,7 +161,13 @@ class Codec {
         var err : OSStatus
         
         err = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDesrciption, 0, sps, spsLength, spsCount, nil )
+        if (err != noErr) {
+            NSLog("An Error occured while getting h264 parameter")
+        }
         err = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDesrciption, 1, pps, ppsLength, ppsCount, nil )
+        if (err != noErr) {
+            NSLog("An Error occured while getting h264 parameter")
+        }
         sampleData.appendBytes(Codec.H264_Decoder.startCode, length: Codec.H264_Decoder.startCodeLength)
         sampleData.appendBytes(sps.memory, length: spsLength.memory)
         sampleData.appendBytes(Codec.H264_Decoder.startCode, length: Codec.H264_Decoder.startCodeLength)
@@ -171,21 +183,10 @@ class Codec {
             sampleData.appendBytes(Codec.H264_Decoder.stopCode, length: Codec.H264_Decoder.startCodeLength)
             sampleBytes.dealloc(length)
         }
+
         
-        
-        //Send the sampleBuffer here-------------------------------------
-        
-        
-        
-        //---------------------------------------------------------------
-        
-//        let nalu:NALU = NALU(streamRawBytes: sampleData)
-//        let newSampleBuffer :CMSampleBuffer = nalu.getSampleBuffer()
-//        if CMFormatDescriptionEqual(CMSampleBufferGetFormatDescription(newSampleBuffer), formatDesrciption){
-//            NSLog("Equal")
-//        }
-        let stream = NSData(data: sampleData)
-        self.delegate?.preparedFrameForStream(stream)
+        let nalUnit = NSData(data: sampleData)
+        self.delegate?.finishedEncoding(nalUnit)
         
         sps.destroy()
         spsLength.destroy()
@@ -215,6 +216,13 @@ class Codec {
             return
         }
         if (status == noErr){
+//            if RTStream.sharedInstance.frameToDisplay.isEmpty {
+//                RTStream.sharedInstance.frameToDisplay.append(sampleBuffer!)
+//            }else{
+//                RTStream.sharedInstance.frameToDisplay[0] = sampleBuffer!
+//            }
+
+            
             Codec.H264_Decoder.processFrameForStream(sampleBuffer)
         }
 

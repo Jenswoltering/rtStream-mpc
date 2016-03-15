@@ -21,7 +21,7 @@ protocol CodecDelegate {
 class Codec {
     
     var compressionSession : VTCompressionSessionRef?
-    private var bitrate: Int = 3500
+    private var bitrate: Int = 2000*1024
     private var width:Int32 = 640
     private var height:Int32 = 480
     let startCodeLength :size_t!

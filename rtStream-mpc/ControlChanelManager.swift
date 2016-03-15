@@ -14,10 +14,19 @@ class ControlChanelManager :MCManagerDelegate {
     var usePayload:Bool = true
     var parent :RTStream!
     var transportManager:MCManager!
-    var rttResponse:[[String:AnyObject]]?=[]
+    //var rttResponse:[[String:AnyObject]]?=[]      //moved to ststreampeer
+    var rTTtimer :NSTimer!
+    var statusTimer :NSTimer!
+    var noBadNews :Int = 0
     init(parent:RTStream , transportManager: MCManager) {
         self.parent = parent
         self.transportManager = transportManager
+        
+    }
+    
+    func startTimers(){
+       self.rTTtimer = NSTimer.scheduledTimerWithTimeInterval(3.00, target: self, selector: Selector("determineRoundTripTime"), userInfo: nil, repeats: true)
+        self.statusTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("statusCheck"), userInfo: nil, repeats: true)
     }
     
     func lostPeer(manager: MCManager, lostDevice: MCPeerID) {
@@ -66,9 +75,9 @@ class ControlChanelManager :MCManagerDelegate {
         let nalu :NALU = NALU(streamRawBytes: msgDict["frame"] as! NSData)
         let rtStreamPeer = RTStream.sharedInstance.getRtStreamPeerByPeerID(fromPeer)
         if rtStreamPeer != nil {
-            
+            RTStream.sharedInstance.offerFrame(nalu.getSampleBuffer())
             //Codec.H264_Decoder.decodeFrame(nalu.getSampleBuffer())
-            rtStreamPeer?.setFrameToDisplay(nalu.getSampleBuffer())
+            //rtStreamPeer?.setFrameToDisplay(nalu.getSampleBuffer())
         }
     }
     
@@ -112,6 +121,34 @@ class ControlChanelManager :MCManagerDelegate {
         return nowDouble*1000
     }
     
+    func determineRoundTripTime(){
+        RTStream.sharedInstance.mcManager.sendMessageToAllPeers(messageToSend: NSKeyedArchiver.archivedDataWithRootObject(createRoundTripTimePackage(currentTimeMillis())))
+        
+    }
+    
+    func statusCheck(){
+        //check if system is running without negativ messages
+        switch noBadNews {
+        case 0:
+            break
+            //not good
+        case 1..<3:
+            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
+        case 3..<5:
+            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
+            RTStream.sharedInstance.changeStrategy(Strategies.increaseFramerate)
+        case 5..<10:
+            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
+        default:
+          NSLog("unknown status")
+        }
+        if RTStream.sharedInstance.connectedPeers.isEmpty == false {
+            noBadNews = noBadNews + 1
+        }
+        
+        
+    }
+    
     func createRoundTripTimePackage(currentTime :Double)->[String:AnyObject]{
         
         var message : [String:AnyObject] = [
@@ -129,15 +166,29 @@ class ControlChanelManager :MCManagerDelegate {
     
     func getRoundTripTimeForPeer(peerID:MCPeerID,response:Bool, rttPackage:[String:AnyObject]?){
         if response == true {
-            rttResponse?.append(rttPackage!)
-            if rttResponse?.count == 25 {
+            let peer = RTStream.sharedInstance.getRtStreamPeerByPeerID(peerID)
+            peer!.rttResponse?.append(rttPackage!)
+            if peer!.rttResponse?.count == 25 {
                 var tmpDuration :Double=0
-                for storedRttPackage: [String:AnyObject] in rttResponse! {
+                for storedRttPackage: [String:AnyObject] in peer!.rttResponse! {
                     tmpDuration = tmpDuration + ((storedRttPackage["endTime"] as! Double) - (storedRttPackage["initTime"] as! Double))
                 }
-                tmpDuration = tmpDuration / Double((rttResponse?.count)!)
-                print(tmpDuration.description)
-                rttResponse?.removeAll()
+                tmpDuration = tmpDuration / Double((peer!.rttResponse?.count)!)
+                
+                peer?.roundTripTimeHistory = tmpDuration
+                
+                if ((peer!.roundTripTimeHistory < tmpDuration) && (peer!.getRoundTripTimeTendency() > 2)){
+                    //things are gettig bad
+                    self.noBadNews = 0
+                }
+                if ((peer!.roundTripTimeHistory > tmpDuration) && (peer!.getRoundTripTimeTendency() < -2)){
+                    //things are gettig better
+                }
+
+                
+                
+                //print(tmpDuration.description)
+                peer!.rttResponse?.removeAll()
             }else{
                 RTStream.sharedInstance.mcManager.sendMessageToPeer(peerID, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(createRoundTripTimePackage(currentTimeMillis())))
             }

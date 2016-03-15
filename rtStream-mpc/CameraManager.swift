@@ -36,7 +36,7 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
         super.init()
         captureSession = AVCaptureSession()
         //setPreset(AVCaptureSessionPreset640x480)
-        captureSession.sessionPreset = AVCaptureSessionPreset640x480
+        captureSession.sessionPreset = AVCaptureSessionPreset1280x720
         sessionQueue = dispatch_queue_create("CameraQueue", DISPATCH_QUEUE_SERIAL)
         self.useHardwareEncoding = true;
         Codec.H264_Decoder.delegate=self
@@ -93,8 +93,6 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
     }
     func finishedEncoding(nalUnit: NSData) {
         let nalu = NALU(streamRawBytes: nalUnit)
-        NSLog(nalu.rawBytes.debugDescription)
-        NSLog(nalu.blockBuffer.debugDescription)
         RTStream.sharedInstance.myPeer?.setFrameToDisplay(nalu.getSampleBuffer())
         self.sessionDelegate?.cameraSessionDidOutputFrameAsH264(nalUnit)
     }

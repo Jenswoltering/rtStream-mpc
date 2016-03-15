@@ -131,7 +131,7 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
         var toPeer:[MCPeerID]=[]
         if RTStream.sharedInstance.getConnectedPeers().isEmpty == false{
             for peer in RTStream.sharedInstance.getConnectedPeers() {
-                toPeer.append(peer.peerID)
+                toPeer.append(peer.peerID!)
             }
             do{
                 try self.session.sendData(message, toPeers: toPeer, withMode: MCSessionSendDataMode.Unreliable)

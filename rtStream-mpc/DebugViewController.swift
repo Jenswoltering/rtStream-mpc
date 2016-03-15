@@ -11,9 +11,9 @@ import CoreMedia
 import AVFoundation
 import MultipeerConnectivity
 
-class DebugViewController: UIViewController {
+class DebugViewController: UIViewController, RTStreamDelegate {
     @IBOutlet weak var RTTButton: UIButton!
-    var displayLayer = RTStream.sharedInstance.debugDisplaylayer
+    var displayLayer = AVSampleBufferDisplayLayer()
     var rtStream :RTStream?
     var timer  = NSTimer()
     var testPTS :Int64=1
@@ -21,17 +21,23 @@ class DebugViewController: UIViewController {
         
         super.viewDidLoad()
         rtStream = RTStream.sharedInstance
+        rtStream?.rtstreamDelegate = self
         displayLayer.frame = self.view.bounds
         self.view.layer.addSublayer(displayLayer)
-        var controlTimebase :CMTimebaseRef?
-        CMTimebaseCreateWithMasterClock(kCFAllocatorDefault , CMClockGetHostTimeClock(), &controlTimebase)
-        displayLayer.controlTimebase = controlTimebase
-       
-        CMTimebaseSetTime(displayLayer.controlTimebase!, CMTime(value: self.testPTS, timescale: 1))
-        CMTimebaseSetRate(displayLayer.controlTimebase!, 1)
+//        var controlTimebase :CMTimebaseRef?
+//        CMTimebaseCreateWithMasterClock(kCFAllocatorDefault , CMClockGetHostTimeClock(), &controlTimebase)
+//        displayLayer.controlTimebase = controlTimebase
+//       
+//        CMTimebaseSetTime(displayLayer.controlTimebase!, CMTime(value: self.testPTS, timescale: 1))
+//        CMTimebaseSetRate(displayLayer.controlTimebase!, 1)
         displayLayer.backgroundColor = UIColor.redColor().CGColor
         //NSNotificationCenter.defaultCenter().addObserver(self, selector: "updateImagesWithNotification", name: "NALU_ready", object: nil)
-        timer = NSTimer.scheduledTimerWithTimeInterval(0.04, target: self, selector: Selector("updateImages"), userInfo: nil, repeats: true)
+        //timer = NSTimer.scheduledTimerWithTimeInterval(0.04, target: self, selector: Selector("updateImages"), userInfo: nil, repeats: true)
+    }
+    
+    func displayFrame(frame: CMSampleBuffer) {
+        self.displayLayer.enqueueSampleBuffer(frame)
+        self.displayLayer.setNeedsDisplay()
     }
     
     func updateImagesWithNotification(notification:NSNotification){
@@ -50,19 +56,19 @@ class DebugViewController: UIViewController {
                 if frame != nil {
                     var newFrame: CMSampleBuffer?
                     if CMSampleBufferIsValid(frame!){
-                        self.testPTS += 1
-                        var sampleTimingInfo = CMSampleTimingInfo(duration: kCMTimeInvalid, presentationTimeStamp: CMTimeMake(self.testPTS, 1), decodeTimeStamp: kCMTimeInvalid)
-                        CMSampleBufferSetOutputPresentationTimeStamp(frame!, CMTimeMake(self.testPTS, 1))
-                        CMSampleBufferCreateCopyWithNewTiming(kCFAllocatorDefault, frame!, 1, &sampleTimingInfo, &newFrame)
-
+//                        self.testPTS += 1
+//                        var sampleTimingInfo = CMSampleTimingInfo(duration: kCMTimeInvalid, presentationTimeStamp: CMTimeMake(self.testPTS, 1), decodeTimeStamp: kCMTimeInvalid)
+//                        CMSampleBufferSetOutputPresentationTimeStamp(frame!, CMTimeMake(self.testPTS, 1))
+//                        CMSampleBufferCreateCopyWithNewTiming(kCFAllocatorDefault, frame!, 1, &sampleTimingInfo, &newFrame)
+                        self.displayLayer.enqueueSampleBuffer(frame!)
+                        self.displayLayer.setNeedsDisplay()
+                        self.displayLayer.flush()
                         NSLog("valid")
                     }else{
                         NSLog("not valid")
                     }
                 
-                    self.displayLayer.enqueueSampleBuffer(frame!)
-                    self.displayLayer.setNeedsDisplay()
-                    self.displayLayer.flush()
+                   
                 }
             })
         }

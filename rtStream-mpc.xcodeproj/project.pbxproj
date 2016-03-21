@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		730967381C8DE60B007B32F8 /* Strategies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 730967371C8DE60B007B32F8 /* Strategies.swift */; };
-		735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670E61C68AD5600F5779D /* PlayerViewController.swift */; };
+		735670E71C68AD5600F5779D /* DisplayLayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670E61C68AD5600F5779D /* DisplayLayerViewController.swift */; };
 		735670EA1C68BF9A00F5779D /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670E91C68BF9A00F5779D /* CameraManager.swift */; };
 		735670EC1C71D5D900F5779D /* Codec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 735670EB1C71D5D900F5779D /* Codec.swift */; };
 		7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7364AFE21C4A7EA900509138 /* AppDelegate.swift */; };
@@ -47,7 +47,7 @@
 
 /* Begin PBXFileReference section */
 		730967371C8DE60B007B32F8 /* Strategies.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Strategies.swift; sourceTree = "<group>"; };
-		735670E61C68AD5600F5779D /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
+		735670E61C68AD5600F5779D /* DisplayLayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisplayLayerViewController.swift; sourceTree = "<group>"; };
 		735670E91C68BF9A00F5779D /* CameraManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
 		735670EB1C71D5D900F5779D /* Codec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Codec.swift; sourceTree = "<group>"; };
 		7364AFDF1C4A7EA900509138 /* rtStream-mpc.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "rtStream-mpc.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -120,11 +120,25 @@
 			isa = PBXGroup;
 			children = (
 				7364AFE41C4A7EA900509138 /* DebugViewController.swift */,
-				735670E61C68AD5600F5779D /* PlayerViewController.swift */,
+				735670E61C68AD5600F5779D /* DisplayLayerViewController.swift */,
 				73D1429D1C6256CA00175F65 /* connectedPeersTableViewController.swift */,
 				73D1429F1C6605F400175F65 /* SettingsTableViewController.swift */,
 			);
 			name = VCs;
+			sourceTree = "<group>";
+		};
+		735DB9301C9C0A8300D256AE /* toolkit */ = {
+			isa = PBXGroup;
+			children = (
+				730967351C8C4D20007B32F8 /* util */,
+				730967361C8C4D3B007B32F8 /* model */,
+				730967371C8DE60B007B32F8 /* Strategies.swift */,
+				735670E91C68BF9A00F5779D /* CameraManager.swift */,
+				73B62B741C5957AC0000B713 /* ControlChanelManager.swift */,
+				7364B0121C56338500509138 /* MCManager.swift */,
+				73B62B721C5817DE0000B713 /* rtStream.swift */,
+			);
+			name = toolkit;
 			sourceTree = "<group>";
 		};
 		7364AFD61C4A7EA900509138 = {
@@ -151,15 +165,9 @@
 			isa = PBXGroup;
 			children = (
 				7364AFE21C4A7EA900509138 /* AppDelegate.swift */,
-				730967361C8C4D3B007B32F8 /* model */,
-				730967351C8C4D20007B32F8 /* util */,
 				735670E81C68BD6600F5779D /* VCs */,
 				7364AFE61C4A7EA900509138 /* Main.storyboard */,
-				73B62B721C5817DE0000B713 /* rtStream.swift */,
-				730967371C8DE60B007B32F8 /* Strategies.swift */,
-				735670E91C68BF9A00F5779D /* CameraManager.swift */,
-				73B62B741C5957AC0000B713 /* ControlChanelManager.swift */,
-				7364B0121C56338500509138 /* MCManager.swift */,
+				735DB9301C9C0A8300D256AE /* toolkit */,
 				7364AFE91C4A7EA900509138 /* Assets.xcassets */,
 				7364AFEB1C4A7EA900509138 /* LaunchScreen.storyboard */,
 				7364AFEE1C4A7EA900509138 /* Info.plist */,
@@ -324,7 +332,7 @@
 				7364B0131C56338600509138 /* MCManager.swift in Sources */,
 				735670EA1C68BF9A00F5779D /* CameraManager.swift in Sources */,
 				73D142A01C6605F400175F65 /* SettingsTableViewController.swift in Sources */,
-				735670E71C68AD5600F5779D /* PlayerViewController.swift in Sources */,
+				735670E71C68AD5600F5779D /* DisplayLayerViewController.swift in Sources */,
 				7364AFE31C4A7EA900509138 /* AppDelegate.swift in Sources */,
 				736AFFFA1C875DEA00AA4FDF /* Stream.swift in Sources */,
 				730967381C8DE60B007B32F8 /* Strategies.swift in Sources */,

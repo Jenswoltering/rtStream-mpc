@@ -61,8 +61,15 @@ class connectedPeersTableViewController: UITableViewController {
             let cell = sender as! UITableViewCell
             let navTitle = cell.textLabel?.text
             
-            let controller = segue.destinationViewController as! PlayerViewController
+            let controller = segue.destinationViewController as! DisplayLayerViewController
             controller.navtitle = navTitle
+            var peerForSegue :rtStreamPeer?
+            for peer in RTStream.sharedInstance.getConnectedPeers() {
+                if peer.name == cell.textLabel?.text{
+                    peerForSegue = peer
+                }
+            }
+            controller.peerToDisplay = peerForSegue!
         }
     }
 

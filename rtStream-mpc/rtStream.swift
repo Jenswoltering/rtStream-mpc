@@ -15,7 +15,7 @@ import MultipeerConnectivity
 protocol RTStreamDelegate {
     //func cameraSessionDidOutputSampleBuffer(sampleBuffer: CMSampleBuffer!)
     //func cameraSessionDidOutputFrameAsH264(nalUnit: NSData!)
-    func displayFrame(frame :CMSampleBuffer)
+    func displayFrame(frame :CMSampleBuffer, fromPeer :MCPeerID)
 }
 
 
@@ -39,7 +39,7 @@ class RTStream :CameraManagerDelegate{
     var currentResolution :String?
     var currentFramerate :Int?
     var currentBitrate :Int?
-    let sendingQueue: dispatch_queue_t = dispatch_queue_create("sendingQueue", DISPATCH_QUEUE_SERIAL)
+   
 
     static let sharedInstance = RTStream(serviceType: "rtStream")
     
@@ -80,7 +80,9 @@ class RTStream :CameraManagerDelegate{
         return dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0)
     }
     
-    let criticalQueueAccess: dispatch_queue_t = dispatch_queue_create("accessOutputQueue.queue", DISPATCH_QUEUE_CONCURRENT)
+    let criticalQueueAccess: dispatch_queue_t = dispatch_queue_create("accessOutputQueue.queue", DISPATCH_QUEUE_SERIAL)
+    
+    let sendingQueue: dispatch_queue_t = dispatch_queue_create("sendingQueue", DISPATCH_QUEUE_CONCURRENT)
     //------------------------------------------------------------
     
     
@@ -88,31 +90,56 @@ class RTStream :CameraManagerDelegate{
         
         mcManager=MCManager(serviceTyeName: serviceType)
         myPeer=rtStreamPeer(peerID: mcManager.getMyPeerID(),aIsBroadcaster: false)
-        
         //connectedPeers.append(myPeer!)
-
         controlChanel=ControlChanelManager(parent: self, transportManager: mcManager)
         mcManager.delegate=controlChanel
         mcManager.startBrowsing()
+        //startBrowsing()
         //self.minResolution = "1280x720"
         //self.minFramerate = 5
         //self.minBitrate = 400
-        
-        
-        
+    }
+    
+    
+    func startBrowsing(){
+        mcManager.startBrowsing()
     }
 
+    func stopBrowsing(){
+        mcManager.stopBrowsing()
+    }
+    
+    
+    func startBroadcasting(){
+        cameraManager = CameraManager()
+        cameraManager.sessionDelegate = self
+        cameraManager.startCamera()
+        controlChanel.startControlTimers()
+    }
+    
+    func stopBroadcasting(){
+        controlChanel.stopControlTimers()
+        if cameraManager != nil {
+            cameraManager.teardownCamera()
+            cameraManager.sessionDelegate = nil
+            cameraManager = nil
+        }
+       
+        
+    }
+    
     func addPeer(connectedPeer:MCPeerID, isBroacaster:Bool){
         
-        if myPeer?.name == "Svens Iphone"{
-            myPeer?.isBroadcaster = true
-            cameraManager = CameraManager()
-            cameraManager.sessionDelegate = self
-            cameraManager.startCamera()
-        }
+//        if myPeer?.name == "Svens Iphone"{
+//            myPeer?.isBroadcaster = true
+//            cameraManager = CameraManager()
+//            cameraManager.sessionDelegate = self
+//            cameraManager.startCamera()
+//        }
 
         
         let newPeer=rtStreamPeer(peerID: connectedPeer, aIsBroadcaster: isBroacaster)
+        //newPeer.addDelegate()
         self.connectedPeers.append(newPeer)
     }
     
@@ -138,12 +165,12 @@ class RTStream :CameraManagerDelegate{
         return self.connectedPeers
     }
     
-    func offerFrame(frame :CMSampleBuffer){
+    func offerFrame(frame :CMSampleBuffer , fromPeer: MCPeerID){
         let attachments :CFArrayRef = CMSampleBufferGetSampleAttachmentsArray(frame, true)!
         let dict :CFMutableDictionaryRef = unsafeBitCast(CFArrayGetValueAtIndex(attachments, 0),CFMutableDictionaryRef.self)
         //CFDictionaryAddValue(dict , unsafeAddressOf(kCMSampleAttachmentKey_DisplayImmediately), unsafeAddressOf(kCFBooleanTrue))
         CFDictionarySetValue(dict, unsafeAddressOf(kCMSampleAttachmentKey_DisplayImmediately), unsafeAddressOf(kCFBooleanTrue))
-        self.rtstreamDelegate?.displayFrame(frame)
+        self.rtstreamDelegate?.displayFrame(frame, fromPeer: fromPeer)
     }
     
     // Delegate methods
@@ -179,26 +206,27 @@ class RTStream :CameraManagerDelegate{
         }else{
             return nil
         }
+        
     }
-    
     
     func bufferOverflowAlert(){
         //inform all connected peers abount the buffer overflow
         //they should decrease their bitrate to lower the traffic
         let message : [String:AnyObject] = ["type":"bufferOverflow"]
         RTStream.sharedInstance.mcManager.sendMessageToAllPeers(messageToSend: NSKeyedArchiver.archivedDataWithRootObject(message))
+        
         //decrease the framerate to prevent CPU/GPU-overload
         RTStream.sharedInstance.changeStrategy(Strategies.decreaseFramerate)
     }
     
     func cameraSessionDidOutputFrameAsH264(nalUnit: NSData!){
+        NSLog("outputframeash264")
         dispatch_async(GlobalUserInteractiveQueue, { () -> Void in
             if self.connectedPeers.isEmpty == false {
                 if self.outputQueue.count < 3 {
                     
                     self.outputQueue.append(nalUnit)
-                    dispatch_sync(self.sendingQueue, {
-                        
+                    dispatch_async(self.sendingQueue, {
                         self.sendFrame()
                     })
                     
@@ -207,8 +235,8 @@ class RTStream :CameraManagerDelegate{
                     NSLog("buffer overflow")
                 }
             }
-            //let nalu :NALU = NALU(streamRawBytes: nalUnit)
-            //self.rtstreamDelegate?.displayFrame(nalu.getSampleBuffer())
+//            let nalu :NALU = NALU(streamRawBytes: nalUnit)
+//            self.rtstreamDelegate?.displayFrame(nalu.getSampleBuffer(), fromPeer: (RTStream.sharedInstance.myPeer?.peerID)!)
  
         })
         

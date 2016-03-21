@@ -15,9 +15,7 @@ class NALU {
     var ppsData :NSMutableData = NSMutableData()
     var blockBuffer :NSMutableData = NSMutableData()
     
-    
     init(streamRawBytes: NSData){
-        
         self.rawBytes = NSMutableData(data: streamRawBytes)
         processStreamRawBytes()
     }
@@ -90,7 +88,7 @@ class NALU {
         return  sampleBuffer!
     }
     
-    func processStreamRawBytes(){
+    private func processStreamRawBytes(){
         if rawBytes != nil {
 
             var byteBuffer = [UInt8]()

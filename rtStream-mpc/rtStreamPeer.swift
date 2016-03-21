@@ -8,12 +8,12 @@
 
 import Foundation
 import MultipeerConnectivity
+import AVFoundation
 import CoreMedia
 
 class rtStreamPeer {
     private var initialzed:Bool = false
     var rttResponse:[[String:AnyObject]]?=[]
-    
     private var _roundTripTimeHistory :[Double] = [0] {
         willSet(aNewValue){
             
@@ -23,12 +23,14 @@ class rtStreamPeer {
                 if _roundTripTimeHistory.count == 5 {
                     _roundTripTimeHistory.removeAtIndex(0)
                 }
-                if ((roundTripTimeHistory < _roundTripTimeHistory.last) && (getRoundTripTimeTendency() > 2)){
-                    //things are gettig bad
-                }
-                if ((roundTripTimeHistory > _roundTripTimeHistory.last) && (getRoundTripTimeTendency() < -2)){
-                    //things are gettig better
-                }
+//                if ((roundTripTimeHistory < _roundTripTimeHistory.last) && (getRoundTripTimeTendency() > 2)){
+//                    //things are gettig bad
+//                    notifyAboutNegativeTrend()
+//                }
+//                if ((roundTripTimeHistory > _roundTripTimeHistory.last) && (getRoundTripTimeTendency() < -2)){
+//                    //things are gettig better
+//                    notifyAboutPositiveTrend()
+//                }
             }
             
         }
@@ -62,6 +64,7 @@ class rtStreamPeer {
         }
         didSet{
             if self.initialzed == true{
+                //RTStream.sharedInstance.s
                 sendUpdate()
             }
         }
@@ -245,10 +248,9 @@ class rtStreamPeer {
 
     private let defaultProperties :[String:AnyObject] = [
         "minResolution" : "640x480" as String,
-        "minFramerate" : 30 as Int,
+        "minFramerate" : 15 as Int,
         "minBitrate" : 500 as Int
     ]
-    private var frameToDisplay :[CMSampleBuffer] = []
 
     
     init(peerID:MCPeerID, aIsBroadcaster:Bool ){
@@ -264,6 +266,18 @@ class rtStreamPeer {
         self.initialzed = true
     }
     
+    
+    private func notifyAboutPositiveTrend(){
+        
+        NSLog("Things are getting better")
+        
+    }
+    
+    private func notifyAboutNegativeTrend(){
+        NSLog("Things are getting worse")
+
+        
+    }
     
     private func sendUpdate(){
         //send update only when function is called by mypeer
@@ -283,7 +297,6 @@ class rtStreamPeer {
         }
     }
     
-    
     func getRoundTripTimeTendency()->Int{
         var tendency :Int = 0
         if _roundTripTimeHistory.count > 1{
@@ -295,55 +308,35 @@ class rtStreamPeer {
                 if(_roundTripTimeHistory[i-1] > _roundTripTimeHistory[i]){
                     tendency = tendency - 1
                 }
-                print(tendency.description)
+                //print(tendency.description)
                 
             }
         }
         return tendency
     }
     
-    func getFrameToDisplay()->CMSampleBuffer?{
-        if self.frameToDisplay.isEmpty == false {
-            return self.frameToDisplay.last
-        }else{
-            return nil
-        }
-    }
-    
-    func setFrameToDisplay(frame :CMSampleBuffer){
-        let attachments :CFArrayRef = CMSampleBufferGetSampleAttachmentsArray(frame, true)!
-        let dict :CFMutableDictionaryRef = unsafeBitCast(CFArrayGetValueAtIndex(attachments, 0),CFMutableDictionaryRef.self)
-        //CFDictionaryAddValue(dict , unsafeAddressOf(kCMSampleAttachmentKey_DisplayImmediately), unsafeAddressOf(kCFBooleanTrue))
-        CFDictionarySetValue(dict, unsafeAddressOf(kCMSampleAttachmentKey_DisplayImmediately), unsafeAddressOf(kCFBooleanTrue))
-        if self.frameToDisplay.isEmpty{
-            self.frameToDisplay.append(frame)
-        }else{
-            self.frameToDisplay[0]=frame
-        }
-    }
-    
     func updateSettings(setting :[String : AnyObject]){
         if let sIsBroadcaster = setting["isBroadcaster"] {
             self.isBroadcaster = sIsBroadcaster as? Bool
         }
-//        if let sMinResolution = setting["minResolution"] {
-//            self.minResolution = sMinResolution as? Int
-//        }
-//        if let sMinFrameRate = setting["minFrameRate"] {
-//            self.minFrameRate = sMinFrameRate as? Int
-//        }
-//        if let sMinBitRate = setting["minBitRate"] {
-//            self.minBitRate = sMinBitRate as? Int
-//        }
-//        if let sCurrentResolution = setting["currentResolution"] {
-//            self.currentResolution = sCurrentResolution as? Int
-//        }
-//        if let sCurrentFramerate = setting["currentFramerate"] {
-//            self.currentFramerate = sCurrentFramerate as? Int
-//        }
-//        if let sCurrentBitrate = setting["currentBitrate"] {
-//            self.currentBitrate = sCurrentBitrate as? Int
-//        }
+        if let sMinResolution = setting["minResolution"] {
+            self.minResolution = sMinResolution as? String
+        }
+        if let sMinFramerate = setting["minFramerate"] {
+            self.minFramerate = sMinFramerate as? Int
+        }
+        if let sMinBitrate = setting["minBitrate"] {
+            self.minBitrate = sMinBitrate as? Int
+        }
+        if let sCurrentResolution = setting["currentResolution"] {
+            self.currentResolution = sCurrentResolution as? String
+        }
+        if let sCurrentFramerate = setting["currentFramerate"] {
+            self.currentFramerate = sCurrentFramerate as? Int
+        }
+        if let sCurrentBitrate = setting["currentBitrate"] {
+            self.currentBitrate = sCurrentBitrate as? Int
+        }
 
         
     }

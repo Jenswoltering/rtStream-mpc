@@ -9,6 +9,7 @@
 import Foundation
 import MultipeerConnectivity
 import CoreMedia
+import AVFoundation
 
 class ControlChanelManager :MCManagerDelegate {
     var usePayload:Bool = true
@@ -24,9 +25,17 @@ class ControlChanelManager :MCManagerDelegate {
         
     }
     
-    func startTimers(){
+    func startControlTimers(){
        self.rTTtimer = NSTimer.scheduledTimerWithTimeInterval(3.00, target: self, selector: Selector("determineRoundTripTime"), userInfo: nil, repeats: true)
-        self.statusTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("statusCheck"), userInfo: nil, repeats: true)
+        self.statusTimer = NSTimer.scheduledTimerWithTimeInterval(2.0, target: self, selector: Selector("statusCheck"), userInfo: nil, repeats: true)
+    }
+    
+    func stopControlTimers(){
+        if self.rTTtimer != nil {
+            self.rTTtimer.invalidate()
+            self.statusTimer.invalidate()
+        }
+        
     }
     
     func lostPeer(manager: MCManager, lostDevice: MCPeerID) {
@@ -60,7 +69,6 @@ class ControlChanelManager :MCManagerDelegate {
         msgDict["type"] = "rttres"
         msgDict["processingTime"] = (currentTimeMillis() - incomingTimeInMillis) as AnyObject
         RTStream.sharedInstance.mcManager.sendMessageToPeer(fromPeer, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(msgDict))
-
     }
     
     func handleRTTResponse( aMsgDict :[String : AnyObject], fromPeer :MCPeerID){
@@ -75,21 +83,23 @@ class ControlChanelManager :MCManagerDelegate {
         let nalu :NALU = NALU(streamRawBytes: msgDict["frame"] as! NSData)
         let rtStreamPeer = RTStream.sharedInstance.getRtStreamPeerByPeerID(fromPeer)
         if rtStreamPeer != nil {
-            RTStream.sharedInstance.offerFrame(nalu.getSampleBuffer())
+            let naluSampleBuffer :CMSampleBuffer = nalu.getSampleBuffer()
+            var pts :CMTime = CMSampleBufferGetPresentationTimeStamp(naluSampleBuffer)
+            NSLog(pts.value.description)
+            //ToDo compare Timestamp
+            RTStream.sharedInstance.offerFrame(naluSampleBuffer, fromPeer: fromPeer)
             //Codec.H264_Decoder.decodeFrame(nalu.getSampleBuffer())
             //rtStreamPeer?.setFrameToDisplay(nalu.getSampleBuffer())
         }
     }
     
-    func handleSoftUpdate(msgDict :[String : AnyObject], fromPeer :MCPeerID){
+    func handleUpdate(msgDict :[String : AnyObject], fromPeer :MCPeerID){
         let rtStreamPeer = RTStream.sharedInstance.getRtStreamPeerByPeerID(fromPeer)
         //pass a dictionary with all settings that updated
         rtStreamPeer?.updateSettings(msgDict)
         
     }
-    func handleHardUpdate(msgDict :[String : AnyObject], fromPeer :MCPeerID){
-        
-    }
+
     
     func incomingMassage(manager: MCManager, fromPeer: MCPeerID, msg: NSData) {
         
@@ -105,11 +115,10 @@ class ControlChanelManager :MCManagerDelegate {
             //print("received rtt response")
             handleRTTResponse(msgDict, fromPeer: fromPeer)
         case "image":
+            NSLog("Bildgröße: " + msg.length.description)
             handleImage(msgDict, fromPeer: fromPeer)
-        case "softUpdate":
-            handleSoftUpdate(msgDict, fromPeer: fromPeer)
-        case "hardUpdate":
-            handleHardUpdate(msgDict, fromPeer: fromPeer)
+        case "update":
+            handleUpdate(msgDict, fromPeer: fromPeer)
         default:
             print("invalid message type")
         }
@@ -121,12 +130,15 @@ class ControlChanelManager :MCManagerDelegate {
         return nowDouble*1000
     }
     
-    func determineRoundTripTime(){
+    dynamic func determineRoundTripTime(){
         RTStream.sharedInstance.mcManager.sendMessageToAllPeers(messageToSend: NSKeyedArchiver.archivedDataWithRootObject(createRoundTripTimePackage(currentTimeMillis())))
         
     }
     
-    func statusCheck(){
+    
+    
+    
+    dynamic func statusCheck(){
         //check if system is running without negativ messages
         switch noBadNews {
         case 0:
@@ -138,8 +150,13 @@ class ControlChanelManager :MCManagerDelegate {
             RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
             RTStream.sharedInstance.changeStrategy(Strategies.increaseFramerate)
         case 5..<10:
+            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
             RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
+        case 11..<20:
+            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
+            RTStream.sharedInstance.changeStrategy(Strategies.increaseFramerate)
         default:
+            noBadNews = 0
           NSLog("unknown status")
         }
         if RTStream.sharedInstance.connectedPeers.isEmpty == false {
@@ -179,14 +196,12 @@ class ControlChanelManager :MCManagerDelegate {
                 
                 if ((peer!.roundTripTimeHistory < tmpDuration) && (peer!.getRoundTripTimeTendency() > 2)){
                     //things are gettig bad
-                    self.noBadNews = 0
+                    //self.noBadNews = 0
                 }
                 if ((peer!.roundTripTimeHistory > tmpDuration) && (peer!.getRoundTripTimeTendency() < -2)){
                     //things are gettig better
                 }
 
-                
-                
                 //print(tmpDuration.description)
                 peer!.rttResponse?.removeAll()
             }else{

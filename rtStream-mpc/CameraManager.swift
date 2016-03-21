@@ -28,6 +28,7 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
     var sessionDelegate: CameraManagerDelegate?
     var outputQueue :[NSData] = []
     var test :Int = 0
+    
     let criticalQueueAccess: dispatch_queue_t = dispatch_queue_create("accessOutputQueue", DISPATCH_QUEUE_CONCURRENT)
 
     
@@ -92,8 +93,6 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
         self.useHardwareEncoding = aUseHardwareEncoding
     }
     func finishedEncoding(nalUnit: NSData) {
-        let nalu = NALU(streamRawBytes: nalUnit)
-        RTStream.sharedInstance.myPeer?.setFrameToDisplay(nalu.getSampleBuffer())
         self.sessionDelegate?.cameraSessionDidOutputFrameAsH264(nalUnit)
     }
     
@@ -156,32 +155,84 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
     }
     
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
-        NSLog("output")
-        test += 1
-        if test == 100 {
-            NSLog("100 frames reached")
-            RTStream.sharedInstance.changeStrategy(Strategies.slowStart)
-        }
-        if test == 110 {
-            NSLog("110 frames reached")
-            RTStream.sharedInstance.changeStrategy(Strategies.decreaseFramerate)
-            //setPreset(AVCaptureSessionPreset1920x1080)
-        }
-        if test == 115 {
-            NSLog("115 frames reached")
-            RTStream.sharedInstance.changeStrategy(Strategies.decreaseFramerate)
-            //setPreset(AVCaptureSessionPreset1920x1080)
-        }
-        if test == 120 {
-            NSLog("120 frames reached")
-            RTStream.sharedInstance.changeStrategy(Strategies.increaseFramerate)
-            //setPreset(AVCaptureSessionPreset1920x1080)
-        }
+//        NSLog("output")
+//        test += 1
+//        if test == 100 {
+//            NSLog("100 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.slowStart)
+//        }
+//        if test == 110 {
+//            NSLog("110 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 115 {
+//            NSLog("115 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.decreaseFramerate)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 120 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 140 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 150 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 170 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 180 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 200 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 240 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        
+//        if test == 260 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 280 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        
+//        if test == 300 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
+//        if test == 360 {
+//            NSLog("120 frames reached")
+//            RTStream.sharedInstance.changeStrategy(Strategies.slowStart)
+//            //setPreset(AVCaptureSessionPreset1920x1080)
+//        }
         if (connection.supportsVideoOrientation){
             //connection.videoOrientation = AVCaptureVideoOrientation.PortraitUpsideDown
             connection.videoOrientation = AVCaptureVideoOrientation.LandscapeRight
         }
-        if (self.useHardwareEncoding == true){
+        if (self.useHardwareEncoding == true && Codec.H264_Decoder.readyForFrames == true){
             Codec.H264_Decoder.encodeFrame(sampleBuffer)
     
         }else{

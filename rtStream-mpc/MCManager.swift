@@ -110,7 +110,7 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     
     func session(session: MCSession, didReceiveData data: NSData, fromPeer peerID: MCPeerID) {
         //print("didReceiveData:")
-        NSLog("Dateigröße: " + data.length.description)
+        //NSLog("Dateigröße: " + data.length.description)
         self.delegate?.incomingMassage(self, fromPeer: peerID, msg: data)  
     }
     

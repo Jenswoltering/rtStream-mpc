@@ -21,12 +21,15 @@ protocol CodecDelegate {
 class Codec {
     
     var compressionSession : VTCompressionSessionRef?
-    private var bitrate: Int = 2000*1024
-    private var width:Int32 = 640
-    private var height:Int32 = 480
-    let startCodeLength :size_t!
-    let startCode:[UInt8]!
-    let stopCode:[UInt8]!
+    private var bitrate: Int = (RTStream.sharedInstance.myPeer?.currentBitrate)! * 1024
+    private let widthAndHeigthArray = RTStream.sharedInstance.myPeer?.currentResolution?.componentsSeparatedByString("x")
+    private var width:Int32!
+    private var height:Int32!
+    private let startCodeLength :size_t!
+    private let startCode:[UInt8]!
+    private let stopCode:[UInt8]!
+    private var invalidTimer :NSTimer!
+    var readyForFrames :Bool = false
     var decompressionSession : VTDecompressionSession? = nil
     let decoderParameters = NSMutableDictionary()
     let destinationPixelBufferAttributes = NSMutableDictionary()
@@ -57,9 +60,12 @@ class Codec {
     }
     
     private init(){
+        self.width = Int32(widthAndHeigthArray![0])
+        self.height = Int32(widthAndHeigthArray![1])
         self.startCodeLength  = 4
         self.startCode = [0x00, 0x00, 0x00, 0x01]
         self.stopCode = [0x01, 0xFF, 0x01, 0xFF]
+        self.invalidTimer = NSTimer.scheduledTimerWithTimeInterval(1.00, target: self, selector: Selector("checkForInvalidCompressionSession"), userInfo: nil, repeats: true)
         var status:OSStatus
         status = VTCompressionSessionCreate(
             kCFAllocatorDefault,
@@ -77,13 +83,55 @@ class Codec {
         }
         if (status == noErr) {
             VTCompressionSessionPrepareToEncodeFrames(compressionSession!)
+            self.readyForFrames = true
         }
         self.destinationPixelBufferAttributes.setValue(NSNumber(unsignedInt: kCVPixelFormatType_420YpCbCr8BiPlanarFullRange), forKey: kCVPixelBufferPixelFormatTypeKey as String)
         
     }
     
-    func setBitrate(bitrate :Int){
-        self.bitrate = bitrate
+    func setResolution(resolution :String){
+        let tempWidthAndHeigthArray = resolution.componentsSeparatedByString("x")
+        self.width = Int32(tempWidthAndHeigthArray[0])
+        self.height = Int32(tempWidthAndHeigthArray[1])
+    }
+    
+    
+    dynamic private func checkForInvalidCompressionSession(){
+        let tmpWidthAndHeigthArray = RTStream.sharedInstance.myPeer?.currentResolution?.componentsSeparatedByString("x")
+        let tmpWidth = Int32(tmpWidthAndHeigthArray![0])
+
+        if ((RTStream.sharedInstance.myPeer?.currentBitrate)! * 1024 != self.bitrate)||(self.width!  != tmpWidth){
+            NSLog("called timed update")
+            self.updateCompressionSession((RTStream.sharedInstance.myPeer?.currentResolution)!)
+        }
+    }
+    
+    func updateCompressionSession(resolution :String){
+        self.readyForFrames = false
+        VTCompressionSessionInvalidate(compressionSession!)
+        setResolution(resolution)
+        self.bitrate = (RTStream.sharedInstance.myPeer?.currentBitrate)! * 1024
+        var status:OSStatus
+        status = VTCompressionSessionCreate(kCFAllocatorDefault,
+            width,
+            height,
+            kCMVideoCodecType_H264,
+            nil,
+            attributes,
+            nil,
+            callback,
+            unsafeBitCast(self, UnsafeMutablePointer<Void>.self),
+            &compressionSession)
+        NSLog("updated compression " + status.description)
+        if (status == noErr){
+            status = VTSessionSetProperties(compressionSession!, properties)
+        }
+        if (status == noErr) {
+            VTCompressionSessionPrepareToEncodeFrames(compressionSession!)
+            readyForFrames = true
+        }
+
+        
     }
     
     func initDecompressionSession(encodedFrame:CMSampleBuffer)->Bool{
@@ -157,6 +205,8 @@ class Codec {
         ppsLength.initialize(0)
         spsCount.initialize(0)
         ppsCount.initialize(0)
+
+        
         
         var err : OSStatus
         

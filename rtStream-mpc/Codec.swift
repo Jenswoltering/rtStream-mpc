@@ -176,18 +176,19 @@ class Codec {
     }
     
     func encodeFrame(uncompressedFrame:CMSampleBuffer){
-        var flags:VTEncodeInfoFlags = VTEncodeInfoFlags()
-        let cvUncompressedFrame:CVImageBufferRef = CMSampleBufferGetImageBuffer(uncompressedFrame)!
-        VTCompressionSessionEncodeFrame(
-            compressionSession!,
-            cvUncompressedFrame,
-            CMSampleBufferGetPresentationTimeStamp(uncompressedFrame),
-            CMSampleBufferGetDuration(uncompressedFrame),
-            nil, nil,
-            &flags
-        )
-        VTCompressionSessionCompleteFrames(compressionSession!, CMSampleBufferGetPresentationTimeStamp(uncompressedFrame))
-        
+        if self.readyForFrames == true {
+            var flags:VTEncodeInfoFlags = VTEncodeInfoFlags()
+            let cvUncompressedFrame:CVImageBufferRef = CMSampleBufferGetImageBuffer(uncompressedFrame)!
+            VTCompressionSessionEncodeFrame(
+                compressionSession!,
+                cvUncompressedFrame,
+                CMSampleBufferGetPresentationTimeStamp(uncompressedFrame),
+                CMSampleBufferGetDuration(uncompressedFrame),
+                nil, nil,
+                &flags
+            )
+            VTCompressionSessionCompleteFrames(compressionSession!, CMSampleBufferGetPresentationTimeStamp(uncompressedFrame))
+        }
     }
     
     func processFrameForStream(sampleBuffer: CMSampleBuffer?){
@@ -205,11 +206,7 @@ class Codec {
         ppsLength.initialize(0)
         spsCount.initialize(0)
         ppsCount.initialize(0)
-
-        
-        
         var err : OSStatus
-        
         err = CMVideoFormatDescriptionGetH264ParameterSetAtIndex(formatDesrciption, 0, sps, spsLength, spsCount, nil )
         if (err != noErr) {
             NSLog("An Error occured while getting h264 parameter")
@@ -266,13 +263,6 @@ class Codec {
             return
         }
         if (status == noErr){
-//            if RTStream.sharedInstance.frameToDisplay.isEmpty {
-//                RTStream.sharedInstance.frameToDisplay.append(sampleBuffer!)
-//            }else{
-//                RTStream.sharedInstance.frameToDisplay[0] = sampleBuffer!
-//            }
-
-            
             Codec.H264_Decoder.processFrameForStream(sampleBuffer)
         }
 

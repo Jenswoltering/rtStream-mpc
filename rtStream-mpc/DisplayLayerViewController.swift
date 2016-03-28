@@ -23,6 +23,7 @@ class DisplayLayerViewController: UIViewController, RTStreamDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.navigationItem.title = self.navtitle
         displayViewWrapper.frame = self.view.bounds
         displayLayer.frame = self.view.bounds

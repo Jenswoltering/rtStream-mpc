@@ -15,18 +15,16 @@ class ControlChanelManager :MCManagerDelegate {
     var usePayload:Bool = true
     var parent :RTStream!
     var transportManager:MCManager!
-    //var rttResponse:[[String:AnyObject]]?=[]      //moved to ststreampeer
     var rTTtimer :NSTimer!
     var statusTimer :NSTimer!
     var noBadNews :Int = 0
     init(parent:RTStream , transportManager: MCManager) {
         self.parent = parent
         self.transportManager = transportManager
-        
     }
     
     func startControlTimers(){
-       self.rTTtimer = NSTimer.scheduledTimerWithTimeInterval(3.00, target: self, selector: Selector("determineRoundTripTime"), userInfo: nil, repeats: true)
+        self.rTTtimer = NSTimer.scheduledTimerWithTimeInterval(3.00, target: self, selector: Selector("determineRoundTripTime"), userInfo: nil, repeats: true)
         self.statusTimer = NSTimer.scheduledTimerWithTimeInterval(2.0, target: self, selector: Selector("statusCheck"), userInfo: nil, repeats: true)
     }
     
@@ -84,12 +82,28 @@ class ControlChanelManager :MCManagerDelegate {
         let rtStreamPeer = RTStream.sharedInstance.getRtStreamPeerByPeerID(fromPeer)
         if rtStreamPeer != nil {
             let naluSampleBuffer :CMSampleBuffer = nalu.getSampleBuffer()
-            var pts :CMTime = CMSampleBufferGetPresentationTimeStamp(naluSampleBuffer)
-            NSLog(pts.value.description)
-            //ToDo compare Timestamp
-            RTStream.sharedInstance.offerFrame(naluSampleBuffer, fromPeer: fromPeer)
-            //Codec.H264_Decoder.decodeFrame(nalu.getSampleBuffer())
-            //rtStreamPeer?.setFrameToDisplay(nalu.getSampleBuffer())
+            
+            //get the timing of the received frame
+            let pts :CMTime = CMSampleBufferGetPresentationTimeStamp(naluSampleBuffer)
+            
+            // Flag can be -1,0,1
+            var frameDelay :Int32
+            
+            // pts < timeStampHistory -> frameDelay = -1
+            // pts = timeStampHistory -> frameDelay = 0
+            // pts > timeStampHistory -> frameDelay = 1
+            frameDelay = CMTimeCompare(pts, (rtStreamPeer?.timestampHistory)!)
+            
+            if frameDelay < 0 {
+                //Frame is delayed 
+                //change strategie to slow start and dismiss frame
+                self.noBadNews = 0
+                RTStream.sharedInstance.changeStrategy(Strategies.slowStart)
+                NSLog("Frame is late")
+            }else {
+                RTStream.sharedInstance.offerFrame(naluSampleBuffer, fromPeer: fromPeer)
+            }
+            rtStreamPeer?.timestampHistory = pts
         }
     }
     
@@ -135,16 +149,13 @@ class ControlChanelManager :MCManagerDelegate {
         
     }
     
-    
-    
-    
     dynamic func statusCheck(){
         //check if system is running without negativ messages
         switch noBadNews {
-        case 0:
+        case 0..<2:
             break
             //not good
-        case 1..<3:
+        case 2..<3:
             RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
         case 3..<5:
             RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
@@ -185,7 +196,7 @@ class ControlChanelManager :MCManagerDelegate {
         if response == true {
             let peer = RTStream.sharedInstance.getRtStreamPeerByPeerID(peerID)
             peer!.rttResponse?.append(rttPackage!)
-            if peer!.rttResponse?.count == 25 {
+            if peer!.rttResponse?.count == 15 {
                 var tmpDuration :Double=0
                 for storedRttPackage: [String:AnyObject] in peer!.rttResponse! {
                     tmpDuration = tmpDuration + ((storedRttPackage["endTime"] as! Double) - (storedRttPackage["initTime"] as! Double))
@@ -194,11 +205,35 @@ class ControlChanelManager :MCManagerDelegate {
                 
                 peer?.roundTripTimeHistory = tmpDuration
                 
-                if ((peer!.roundTripTimeHistory < tmpDuration) && (peer!.getRoundTripTimeTendency() > 2)){
+                let tendency = peer!.getRoundTripTimeTendency()
+                let roundTripTimeHistory = peer!.roundTripTimeHistory
+                print("rrTime: " + tmpDuration.description)
+                print("History: " + roundTripTimeHistory.description)
+                print("Tendenz: " + tendency.description)
+                if ((roundTripTimeHistory < tmpDuration) && (tendency > 2)){
+                    self.noBadNews = 0
+                    switch tendency{
+                    case 2:
+                        RTStream.sharedInstance.changeStrategy(Strategies.decreaseBitrate)
+                    case 3:
+                        RTStream.sharedInstance.changeStrategy(Strategies.decreaseBitrate)
+                        RTStream.sharedInstance.changeStrategy(Strategies.decreaseFramerate)
+                    case 4:
+                        RTStream.sharedInstance.changeStrategy(Strategies.decreaseBitrate)
+                        RTStream.sharedInstance.changeStrategy(Strategies.decreaseResolution)
+                    case 5:
+                        break
+                    default:
+                        break
+                        
+                    }
+                    NSLog("things are becoming worse")
                     //things are gettig bad
                     //self.noBadNews = 0
                 }
-                if ((peer!.roundTripTimeHistory > tmpDuration) && (peer!.getRoundTripTimeTendency() < -2)){
+                if ((roundTripTimeHistory > tmpDuration) && (tendency < -2)){
+                    NSLog("things are getting better")
+                    
                     //things are gettig better
                 }
 

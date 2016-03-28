@@ -14,13 +14,29 @@ import CoreMedia
 class rtStreamPeer {
     private var initialzed:Bool = false
     var rttResponse:[[String:AnyObject]]?=[]
+    
+    private var _timestampHistory :[CMTime] = [CMTimeMake(0, 0)] {
+       
+        didSet{
+            
+            if self.initialzed == true{
+                if _timestampHistory.count == 10 {
+                    _timestampHistory.removeAtIndex(0)
+                }
+            }
+            
+        }
+
+        
+    }
+    
     private var _roundTripTimeHistory :[Double] = [0] {
         willSet(aNewValue){
             
         }
         didSet{
             if self.initialzed == true{
-                if _roundTripTimeHistory.count == 5 {
+                if _roundTripTimeHistory.count == 10 {
                     _roundTripTimeHistory.removeAtIndex(0)
                 }
 //                if ((roundTripTimeHistory < _roundTripTimeHistory.last) && (getRoundTripTimeTendency() > 2)){
@@ -245,6 +261,15 @@ class rtStreamPeer {
             _roundTripTimeHistory.append(aNewvalue)
         }
     }
+    
+    var timestampHistory :CMTime{
+        get {
+            return getAverageFrameTimestamp()
+        }
+        set(aNewvalue){
+            _timestampHistory.append(aNewvalue)
+        }
+    }
 
     private let defaultProperties :[String:AnyObject] = [
         "minResolution" : "640x480" as String,
@@ -295,6 +320,18 @@ class rtStreamPeer {
             RTStream.sharedInstance.mcManager.sendMessageToAllPeers(messageToSend: NSKeyedArchiver.archivedDataWithRootObject(updateMessage))
             NSLog("send Update Message")
         }
+    }
+    
+    func getAverageFrameTimestamp()->CMTime{
+        var sumValue :CMTimeValue = 0
+        var counter :Int64 = 0
+        for pts in _timestampHistory {
+            sumValue = sumValue + pts.value
+            counter = counter + 1
+        }
+        return CMTimeMake(sumValue/counter, 1000000000)
+    
+        
     }
     
     func getRoundTripTimeTendency()->Int{

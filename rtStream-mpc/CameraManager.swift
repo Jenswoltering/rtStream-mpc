@@ -31,19 +31,15 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
     
     let criticalQueueAccess: dispatch_queue_t = dispatch_queue_create("accessOutputQueue", DISPATCH_QUEUE_CONCURRENT)
 
-    
-    
     override init(){
         super.init()
         captureSession = AVCaptureSession()
-        //setPreset(AVCaptureSessionPreset640x480)
         captureSession.sessionPreset = AVCaptureSessionPreset1280x720
         sessionQueue = dispatch_queue_create("CameraQueue", DISPATCH_QUEUE_SERIAL)
         self.useHardwareEncoding = true;
         Codec.H264_Decoder.delegate=self
         setupCamera()
     }
-    
     
     func setPreset(preset :String)->Bool{
         
@@ -92,10 +88,10 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
     func setUseHardwareEncoding(aUseHardwareEncoding :Bool){
         self.useHardwareEncoding = aUseHardwareEncoding
     }
+    
     func finishedEncoding(nalUnit: NSData) {
         self.sessionDelegate?.cameraSessionDidOutputFrameAsH264(nalUnit)
     }
-    
     
     
     private func setupCamera(){
@@ -140,96 +136,12 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
     
     func startCamera() {
         dispatch_async(sessionQueue, {
-//            var weakSelf: CameraManager? = self
-//            self.runtimeErrorHandlingObserver = NSNotificationCenter.defaultCenter().addObserverForName(AVCaptureSessionRuntimeErrorNotification, object: self.sessionQueue, queue: nil, usingBlock: {
-//                (note: NSNotification!) -> Void in
-//                
-//                let strongSelf: CameraSessionController = weakSelf!
-//                
-//                dispatch_async(strongSelf.sessionQueue, {
-//                    strongSelf.session.startRunning()
-//                })
-//            })
             self.captureSession.startRunning()
        })
     }
     
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
-//        NSLog("output")
-//        test += 1
-//        if test == 100 {
-//            NSLog("100 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.slowStart)
-//        }
-//        if test == 110 {
-//            NSLog("110 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 115 {
-//            NSLog("115 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.decreaseFramerate)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 120 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 140 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 150 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 170 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 180 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseResolution)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 200 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 240 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        
-//        if test == 260 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 280 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        
-//        if test == 300 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.increaseBitrate)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
-//        if test == 360 {
-//            NSLog("120 frames reached")
-//            RTStream.sharedInstance.changeStrategy(Strategies.slowStart)
-//            //setPreset(AVCaptureSessionPreset1920x1080)
-//        }
         if (connection.supportsVideoOrientation){
-            //connection.videoOrientation = AVCaptureVideoOrientation.PortraitUpsideDown
             connection.videoOrientation = AVCaptureVideoOrientation.LandscapeRight
         }
         if (self.useHardwareEncoding == true && Codec.H264_Decoder.readyForFrames == true){
@@ -238,11 +150,6 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
         }else{
             self.sessionDelegate?.cameraSessionDidOutputSampleBuffer(sampleBuffer)
         }
-        
-        
-        
-        
-        //sessionDelegate?.cameraSessionDidOutputSampleBuffer?(sampleBuffer)
     }
     
 }

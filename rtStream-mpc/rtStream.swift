@@ -82,7 +82,7 @@ class RTStream :CameraManagerDelegate{
     
     let criticalQueueAccess: dispatch_queue_t = dispatch_queue_create("accessOutputQueue.queue", DISPATCH_QUEUE_SERIAL)
     
-    let sendingQueue: dispatch_queue_t = dispatch_queue_create("sendingQueue", DISPATCH_QUEUE_CONCURRENT)
+    let sendingQueue: dispatch_queue_t = dispatch_queue_create("sendingQueue", DISPATCH_QUEUE_SERIAL)
     //------------------------------------------------------------
     
     
@@ -90,14 +90,9 @@ class RTStream :CameraManagerDelegate{
         
         mcManager=MCManager(serviceTyeName: serviceType)
         myPeer=rtStreamPeer(peerID: mcManager.getMyPeerID(),aIsBroadcaster: false)
-        //connectedPeers.append(myPeer!)
         controlChanel=ControlChanelManager(parent: self, transportManager: mcManager)
         mcManager.delegate=controlChanel
         mcManager.startBrowsing()
-        //startBrowsing()
-        //self.minResolution = "1280x720"
-        //self.minFramerate = 5
-        //self.minBitrate = 400
     }
     
     
@@ -129,17 +124,7 @@ class RTStream :CameraManagerDelegate{
     }
     
     func addPeer(connectedPeer:MCPeerID, isBroacaster:Bool){
-        
-//        if myPeer?.name == "Svens Iphone"{
-//            myPeer?.isBroadcaster = true
-//            cameraManager = CameraManager()
-//            cameraManager.sessionDelegate = self
-//            cameraManager.startCamera()
-//        }
-
-        
         let newPeer=rtStreamPeer(peerID: connectedPeer, aIsBroadcaster: isBroacaster)
-        //newPeer.addDelegate()
         self.connectedPeers.append(newPeer)
     }
     
@@ -221,12 +206,11 @@ class RTStream :CameraManagerDelegate{
     
     func cameraSessionDidOutputFrameAsH264(nalUnit: NSData!){
         NSLog("outputframeash264")
-        dispatch_async(GlobalUserInteractiveQueue, { () -> Void in
+        dispatch_sync(GlobalUserInteractiveQueue, { () -> Void in
             if self.connectedPeers.isEmpty == false {
                 if self.outputQueue.count < 3 {
-                    
                     self.outputQueue.append(nalUnit)
-                    dispatch_async(self.sendingQueue, {
+                    dispatch_sync(self.sendingQueue, {
                         self.sendFrame()
                     })
                     

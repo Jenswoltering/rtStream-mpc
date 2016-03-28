@@ -40,7 +40,7 @@ class Strategies {
     }
     
     static var increaseBitrate = {
-        if (((RTStream.sharedInstance.myPeer?.currentBitrate)! + 100) > 3000){
+        if (((RTStream.sharedInstance.myPeer?.currentBitrate)! + 100) > 10000){
             RTStream.sharedInstance.myPeer?.currentBitrate = 3000
             //Codec.H264_Decoder.updateCompressionSession((RTStream.sharedInstance.myPeer?.currentResolution)!)
         }else{
@@ -108,7 +108,7 @@ class Strategies {
             for possibleResolution in RTStream.possibleResolutions{
                 if possibleResolution.value == valueCurrentResolution - 1 {
                     RTStream.sharedInstance.cameraManager.setPreset(possibleResolution.preset)
-                    RTStream.sharedInstance.myPeer?.currentResolution = possibleResolution.preset
+                    RTStream.sharedInstance.myPeer?.currentResolution = possibleResolution.key
                     //Codec.H264_Decoder.updateCompressionSession((RTStream.sharedInstance.myPeer?.currentResolution)!)
 
                 }

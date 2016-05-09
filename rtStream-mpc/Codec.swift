@@ -15,7 +15,7 @@ import VideoToolbox
 import AVFoundation
 
 protocol CodecDelegate {
-    func finishedEncoding(nalUnit: NSData)
+    func finishedEncoding(nalUnit: NSData, timestamp: Int64)
 }
 
 class Codec {
@@ -34,7 +34,7 @@ class Codec {
     let decoderParameters = NSMutableDictionary()
     let destinationPixelBufferAttributes = NSMutableDictionary()
     var outputCallback = VTDecompressionOutputCallbackRecord()
-    static let H264_Decoder=Codec()
+    static let H264=Codec()
     var delegate:CodecDelegate?
     
     static let defaultAttributes:[NSString: AnyObject] = [
@@ -215,9 +215,9 @@ class Codec {
         if (err != noErr) {
             NSLog("An Error occured while getting h264 parameter")
         }
-        sampleData.appendBytes(Codec.H264_Decoder.startCode, length: Codec.H264_Decoder.startCodeLength)
+        sampleData.appendBytes(Codec.H264.startCode, length: Codec.H264.startCodeLength)
         sampleData.appendBytes(sps.memory, length: spsLength.memory)
-        sampleData.appendBytes(Codec.H264_Decoder.startCode, length: Codec.H264_Decoder.startCodeLength)
+        sampleData.appendBytes(Codec.H264.startCode, length: Codec.H264.startCodeLength)
         sampleData.appendBytes(pps.memory, length: ppsLength.memory)
         
         
@@ -225,15 +225,15 @@ class Codec {
             let length = CMBlockBufferGetDataLength(blockBufferRef)
             let sampleBytes = UnsafeMutablePointer<Int8>.alloc(length)
             CMBlockBufferCopyDataBytes(blockBufferRef, 0, length, sampleBytes)
-            sampleData.appendBytes(Codec.H264_Decoder.startCode, length: Codec.H264_Decoder.startCodeLength)
+            sampleData.appendBytes(Codec.H264.startCode, length: Codec.H264.startCodeLength)
             sampleData.appendBytes(sampleBytes, length: length)
-            sampleData.appendBytes(Codec.H264_Decoder.stopCode, length: Codec.H264_Decoder.startCodeLength)
+            sampleData.appendBytes(Codec.H264.stopCode, length: Codec.H264.startCodeLength)
             sampleBytes.dealloc(length)
         }
 
-        
+        let rts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer!).value as Int64
         let nalUnit = NSData(data: sampleData)
-        self.delegate?.finishedEncoding(nalUnit)
+        self.delegate?.finishedEncoding(nalUnit, timestamp: rts)
         
         sps.destroy()
         spsLength.destroy()
@@ -263,7 +263,7 @@ class Codec {
             return
         }
         if (status == noErr){
-            Codec.H264_Decoder.processFrameForStream(sampleBuffer)
+            Codec.H264.processFrameForStream(sampleBuffer)
         }
 
     }

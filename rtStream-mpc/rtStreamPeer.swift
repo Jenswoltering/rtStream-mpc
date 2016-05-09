@@ -24,34 +24,10 @@ class rtStreamPeer {
                     _timestampHistory.removeAtIndex(0)
                 }
             }
-            
         }
-
-        
     }
     
-    private var _roundTripTimeHistory :[Double] = [0] {
-        willSet(aNewValue){
-            
-        }
-        didSet{
-            if self.initialzed == true{
-                if _roundTripTimeHistory.count == 10 {
-                    _roundTripTimeHistory.removeAtIndex(0)
-                }
-//                if ((roundTripTimeHistory < _roundTripTimeHistory.last) && (getRoundTripTimeTendency() > 2)){
-//                    //things are gettig bad
-//                    notifyAboutNegativeTrend()
-//                }
-//                if ((roundTripTimeHistory > _roundTripTimeHistory.last) && (getRoundTripTimeTendency() < -2)){
-//                    //things are gettig better
-//                    notifyAboutPositiveTrend()
-//                }
-            }
-            
-        }
 
-    }
     
     private var _peerID :MCPeerID? {
         willSet{
@@ -98,17 +74,7 @@ class rtStreamPeer {
         }
     }
 
-     private var _minFramerate :Int? {
-        willSet{
-            
-        }
-        didSet{
-            if self.initialzed == true{
-                sendUpdate()
-            }
-        }
-    }
-
+    
     private var _minBitrate :Int? {
         willSet{
             
@@ -131,17 +97,7 @@ class rtStreamPeer {
         }
     }
 
-    private var _currentFramerate :Int? {
-        willSet{
-            
-        }
-        didSet{
-            if self.initialzed == true{
-                sendUpdate()
-            }
-        }
-    }
-
+    
     private var _currentBitrate :Int? {
         willSet{
             
@@ -153,6 +109,7 @@ class rtStreamPeer {
         }
     }
 
+    
 
     var minResolution :String? {
         get {
@@ -165,6 +122,18 @@ class rtStreamPeer {
         }
     }
 
+    private var _minFramerate :Int? {
+        willSet{
+            
+        }
+        didSet{
+            if self.initialzed == true{
+                sendUpdate()
+            }
+        }
+    }
+
+    
     var minFramerate :Int? {
         get {
             return _minFramerate!
@@ -194,6 +163,14 @@ class rtStreamPeer {
         set(aNewvalue){
             if (aNewvalue  != _currentResolution){
                 _currentResolution = aNewvalue
+            }
+        }
+    }
+
+    private var _currentFramerate :Int? {
+        didSet{
+            if self.initialzed == true{
+                sendUpdate()
             }
         }
     }
@@ -253,8 +230,19 @@ class rtStreamPeer {
         }
     }
     
+    private var _roundTripTimeHistory :[Double] = [0] {
+        didSet{
+            if self.initialzed == true{
+                if _roundTripTimeHistory.count == 10 {
+                    _roundTripTimeHistory.removeAtIndex(0)
+                }
+            }
+        }
+    }
+    
     var roundTripTimeHistory :Double{
         get {
+            //calculation arithmetic mean of stored RTT
             return _roundTripTimeHistory.reduce(0) { $0 + $1 } / Double(_roundTripTimeHistory.count)
         }
         set(aNewvalue){

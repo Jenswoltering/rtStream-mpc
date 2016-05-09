@@ -190,15 +190,15 @@ public class Stream :NSObject, NSStreamDelegate{
     private func checkForEndcode(sizeOfLastInput :Int)->Int?{
             //Its not the first imcoming data
             if inBuffer.count != sizeOfLastInput{
-                for var n = self.inBuffer.count; n > inBuffer.count-self.chunkSize; --n {
+                for var n = self.inBuffer.count; n > inBuffer.count-self.chunkSize; n -= 1 {
                     if(inBuffer[n-3] == 0x01 && inBuffer[n-2] == 0xff && inBuffer[n-1] == 0x01 && inBuffer[n] == 0xff){
-                        NSLog("found endcode1")
+                        //Found an endcode at position n
                         return n
                     }
                 }
                 
             }else{
-                for var n = self.inBuffer.count; n > inBuffer.count-self.chunkSize+3; --n {
+                for var n = self.inBuffer.count; n > inBuffer.count-self.chunkSize+3; n -= 1 {
                     if(inBuffer[n-3] == 0x01 && inBuffer[n-2] == 0xff && inBuffer[n-1] == 0x01 && inBuffer[n] == 0xff){
                         NSLog("found endcode2")
                         return n

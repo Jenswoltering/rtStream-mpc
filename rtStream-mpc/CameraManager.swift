@@ -13,7 +13,7 @@ import CoreImage
 
 protocol CameraManagerDelegate {
     func cameraSessionDidOutputSampleBuffer(sampleBuffer: CMSampleBuffer!)
-    func cameraSessionDidOutputFrameAsH264(nalUnit: NSData!)
+    func cameraSessionDidOutputFrameAsH264(nalUnit: NSData!, timestamp :Int64)
 }
 
 class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, CodecDelegate {
@@ -37,14 +37,21 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
         captureSession.sessionPreset = AVCaptureSessionPreset1280x720
         sessionQueue = dispatch_queue_create("CameraQueue", DISPATCH_QUEUE_SERIAL)
         self.useHardwareEncoding = true;
-        Codec.H264_Decoder.delegate=self
+        Codec.H264.delegate=self
         setupCamera()
     }
     
     func setPreset(preset :String)->Bool{
-        
+        var didSetPreset :Bool = false
+        dispatch_async(sessionQueue, {
         if self.captureSession.canSetSessionPreset(preset){
-            captureSession.sessionPreset = preset
+            self.captureSession.sessionPreset = preset
+            didSetPreset = true
+        }else{
+            didSetPreset = false
+        }
+        })
+        if didSetPreset == true {
             return true
         }else{
             return false
@@ -52,6 +59,7 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
     }
     
     func setFramerate(fps :Int){
+        dispatch_async(sessionQueue, {
         do{
             try self.videoDeviceIn.device.lockForConfiguration()
             self.videoDeviceIn.device.activeVideoMinFrameDuration = CMTimeMake(1,Int32(fps))
@@ -59,6 +67,7 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
             self.videoDeviceIn.device.unlockForConfiguration()
         }catch{
         }
+        })
     }
 
     private func authorizeCamera() -> Bool {
@@ -89,8 +98,8 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
         self.useHardwareEncoding = aUseHardwareEncoding
     }
     
-    func finishedEncoding(nalUnit: NSData) {
-        self.sessionDelegate?.cameraSessionDidOutputFrameAsH264(nalUnit)
+    func finishedEncoding(nalUnit: NSData, timestamp: Int64) {
+        self.sessionDelegate?.cameraSessionDidOutputFrameAsH264(nalUnit, timestamp: timestamp)
     }
     
     
@@ -141,15 +150,17 @@ class CameraManager: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, Cod
     }
     
     func captureOutput(captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, fromConnection connection: AVCaptureConnection!) {
+        NSLog("camera raw outpu")
         if (connection.supportsVideoOrientation){
             connection.videoOrientation = AVCaptureVideoOrientation.LandscapeRight
         }
-        if (self.useHardwareEncoding == true && Codec.H264_Decoder.readyForFrames == true){
-            Codec.H264_Decoder.encodeFrame(sampleBuffer)
+        if (self.useHardwareEncoding == true && Codec.H264.readyForFrames == true){
+            Codec.H264.encodeFrame(sampleBuffer)
     
         }else{
             self.sessionDelegate?.cameraSessionDidOutputSampleBuffer(sampleBuffer)
         }
+        
     }
     
 }

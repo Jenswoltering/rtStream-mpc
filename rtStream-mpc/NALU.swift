@@ -109,7 +109,7 @@ class NALU {
             for var n = 0; n < byteBuffer.count-3; ++n {
                 if(byteBuffer[n] == 0x00 && byteBuffer[n+1] == 0x00 && byteBuffer[n+2] == 0x00 && byteBuffer[n+3] == 0x01){
                 
-                    ++foundStartcodes
+                    foundStartcodes += 1
                     //Found sps unit
                     if foundStartcodes == 1{
                         spsStartCodeIndex = n

@@ -68,10 +68,15 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
         print("\(error) : didNotStartAdvertisingPeer")
     }
     
+    //Found a peer
+    func browser(browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
+        self.serviceBrowser.invitePeer(peerID, toSession: self.session, withContext: nil, timeout: 10)
+    }
+    //Got an invitation
     func advertiser(advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: NSData?, invitationHandler: (Bool, MCSession) -> Void) {
-        print("\(peerID) : didReceiveInvitationFromPeer")
         invitationHandler(true, self.session)
     }
+    
     
     // MARK: - MCNearbyServiceBrowserDelegate Methods
     
@@ -84,10 +89,7 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
         self.delegate?.lostPeer(self, lostDevice:  peerID)
     }
     
-    func browser(browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String : String]?) {
-        print("\(peerID) : foundPeer")
-        self.serviceBrowser.invitePeer(peerID, toSession: self.session, withContext: nil, timeout: 10)
-    }
+    
     
     
     
@@ -96,16 +98,15 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
     func session(session: MCSession, peer peerID: MCPeerID, didChangeState state: MCSessionState) {
         switch state {
         case .NotConnected:
-             print("not connected")
+            print("not connected")
         case .Connected:
-             print("connected")
-             if session.connectedPeers.contains(peerID){
+            if session.connectedPeers.contains(peerID){
+                //done here, delegate to next responsible class
                 self.delegate?.connectedDevicesChanged(self ,connectedDevice: peerID, didChangeState: state.rawValue)
-             }
+            }
         default:
-             print("connecting")
+            print("connecting")
         }
-        //NSLog("%@", "peer \(peerID) didChangeState: \(state.rawValue.description)")
     }
     
     func session(session: MCSession, didReceiveData data: NSData, fromPeer peerID: MCPeerID) {
@@ -143,7 +144,27 @@ class MCManager: NSObject ,MCNearbyServiceAdvertiserDelegate, MCNearbyServiceBro
         return false
     }
 
-    
+    func sendMessageToAllReceivers(messageToSend message:NSData)->Bool{
+        var toPeer:[MCPeerID]=[]
+        if RTStream.sharedInstance.getConnectedPeers().isEmpty == false{
+            for peer in RTStream.sharedInstance.getConnectedPeers() {
+                if peer.isBroadcaster == false {
+                    toPeer.append(peer.peerID!)
+                }
+            }
+            if toPeer.isEmpty == false {
+                do{
+                    try self.session.sendData(message, toPeers: toPeer, withMode: MCSessionSendDataMode.Reliable)
+                    return true
+                }catch{
+                    return false
+                }
+  
+            }
+
+        }
+        return false
+    }
     
     func sendMessageToPeer(peer: MCPeerID, messageToSend message:NSData) ->Bool{
         let toPeer:[MCPeerID]=[peer]

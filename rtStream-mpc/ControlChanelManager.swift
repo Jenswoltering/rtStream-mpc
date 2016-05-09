@@ -24,8 +24,8 @@ class ControlChanelManager :MCManagerDelegate {
     }
     
     func startControlTimers(){
-        self.rTTtimer = NSTimer.scheduledTimerWithTimeInterval(3.00, target: self, selector: Selector("determineRoundTripTime"), userInfo: nil, repeats: true)
-        self.statusTimer = NSTimer.scheduledTimerWithTimeInterval(2.0, target: self, selector: Selector("statusCheck"), userInfo: nil, repeats: true)
+        self.rTTtimer = NSTimer.scheduledTimerWithTimeInterval(3.00, target: self, selector: #selector(ControlChanelManager.determineRoundTripTime), userInfo: nil, repeats: true)
+        self.statusTimer = NSTimer.scheduledTimerWithTimeInterval(2.0, target: self, selector: #selector(ControlChanelManager.statusCheck), userInfo: nil, repeats: true)
     }
     
     func stopControlTimers(){
@@ -40,24 +40,40 @@ class ControlChanelManager :MCManagerDelegate {
         parent?.deletePeer(lostDevice)
     }
     
-    func connectedDevicesChanged(manager : MCManager, connectedDevice: MCPeerID, didChangeState: Int) {
+//    var message : [String:AnyObject] = [
+//        //defined packagetypes
+//        "type":"hello",
+//        //current time in millisecons
+//        "timestamp": 12345,
+//        //some data convertible to NSData
+//        "payload" : "someData"
+//        
+//        ]
+    
+    //will be only called when connected
+    func connectedDevicesChanged(mcManager : MCManager, connectedDevice: MCPeerID, didChangeState: Int) {
         var message : [String:AnyObject] = [
             "type":"hello",
         ]
         message["isBroadcaster"] = parent.myPeer?.isBroadcaster
-        manager.sendMessageToPeer(connectedDevice, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(message))
+        message["minResolution"] = parent.myPeer?.minResolution
+        message["minFramerate"] =  parent.myPeer?.minFramerate
+        message["minBitrate"] = parent.myPeer?.minBitrate
+        message["currentResolution"] = parent.myPeer?.currentResolution
+        message["currentFramerate"] =  parent.myPeer?.currentFramerate
+        message["currentBitrate"] = parent.myPeer?.currentBitrate
+        mcManager.sendMessageToPeer(connectedDevice, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(message))
     }
     
     
     func handleHelloMessage(msgDict :[String : AnyObject], fromPeer :MCPeerID){
-        print("hello")
         var isBroadcaster:Bool
         if msgDict["isBroadcaster"] as! Bool == false{
             isBroadcaster=false}
         else{
             isBroadcaster=true
         }
-        parent?.addPeer(fromPeer, isBroacaster: isBroadcaster)
+        parent?.addPeer(fromPeer, isBroacaster: isBroadcaster, optionalInfos: msgDict)
     }
     
     func handleRTTRequest(aMsgDict :[String : AnyObject], fromPeer :MCPeerID){
@@ -69,6 +85,30 @@ class ControlChanelManager :MCManagerDelegate {
         RTStream.sharedInstance.mcManager.sendMessageToPeer(fromPeer, messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(msgDict))
     }
     
+    func isFrameDelayed(peerToCompareWith :rtStreamPeer,frameToCheck :CMSampleBuffer)->Bool{
+        //get the timing of the received frame
+        let pts :CMTime = CMSampleBufferGetPresentationTimeStamp(frameToCheck)
+        // Flag can be -1,0,1
+        var frameDelay :Int32
+        // pts < timeStampHistory -> frameDelay = -1
+        // pts = timeStampHistory -> frameDelay = 0
+        // pts > timeStampHistory -> frameDelay = 1
+        frameDelay = CMTimeCompare(pts, (peerToCompareWith.timestampHistory))
+        peerToCompareWith.timestampHistory = pts
+        if frameDelay < 0 {
+            //Frame is delayed
+            //change strategie to slow start and dismiss frame
+            NSLog("Frame is late")
+            return true
+        }else {
+            let timeDiffernece = CMTimeSubtract(pts, (peerToCompareWith.timestampHistory))
+            if timeDiffernece.timescale >= 1{
+                return true
+            }
+        }
+        return false
+    }
+    
     func handleRTTResponse( aMsgDict :[String : AnyObject], fromPeer :MCPeerID){
         var msgDict = aMsgDict
         let incomingTimeInMillis = currentTimeMillis()
@@ -78,42 +118,67 @@ class ControlChanelManager :MCManagerDelegate {
     }
     
     func handleImage(msgDict :[String : AnyObject], fromPeer :MCPeerID){
-        let nalu :NALU = NALU(streamRawBytes: msgDict["frame"] as! NSData)
-        let rtStreamPeer = RTStream.sharedInstance.getRtStreamPeerByPeerID(fromPeer)
-        if rtStreamPeer != nil {
-            let naluSampleBuffer :CMSampleBuffer = nalu.getSampleBuffer()
-            
-            //get the timing of the received frame
-            let pts :CMTime = CMSampleBufferGetPresentationTimeStamp(naluSampleBuffer)
-            
-            // Flag can be -1,0,1
-            var frameDelay :Int32
-            
-            // pts < timeStampHistory -> frameDelay = -1
-            // pts = timeStampHistory -> frameDelay = 0
-            // pts > timeStampHistory -> frameDelay = 1
-            frameDelay = CMTimeCompare(pts, (rtStreamPeer?.timestampHistory)!)
-            
-            if frameDelay < 0 {
-                //Frame is delayed 
-                //change strategie to slow start and dismiss frame
-                self.noBadNews = 0
-                RTStream.sharedInstance.changeStrategy(Strategies.slowStart)
-                NSLog("Frame is late")
-            }else {
-                RTStream.sharedInstance.offerFrame(naluSampleBuffer, fromPeer: fromPeer)
+        dispatch_async(RTStream.sharedInstance.GlobalUserInitiatedQueue, { () -> Void in
+            let nalu :NALU = NALU(streamRawBytes: msgDict["frame"] as! NSData)
+            let rtStreamPeer = RTStream.sharedInstance.getRtStreamPeerByPeerID(fromPeer)
+            if rtStreamPeer != nil {
+                let naluSampleBuffer :CMSampleBuffer = nalu.getSampleBuffer()
+                
+                if self.isFrameDelayed(rtStreamPeer!, frameToCheck: naluSampleBuffer){
+                    self.noBadNews = 0
+                    //Inform sender about delay
+                }else{
+                    let framenumber = msgDict["frameNumber"] as! Int
+                    NSLog(framenumber.description)
+                    RTStream.sharedInstance.offerFrame(naluSampleBuffer, fromPeer: fromPeer)
+                }
+                
+                
+//                //get the timing of the received frame
+//                let pts :CMTime = CMSampleBufferGetPresentationTimeStamp(naluSampleBuffer)
+//                
+//                // Flag can be -1,0,1
+//                var frameDelay :Int32
+//                
+//                // pts < timeStampHistory -> frameDelay = -1
+//                // pts = timeStampHistory -> frameDelay = 0
+//                // pts > timeStampHistory -> frameDelay = 1
+//                frameDelay = CMTimeCompare(pts, (rtStreamPeer?.timestampHistory)!)
+//                
+//                if frameDelay < 0 {
+//                    //Frame is delayed 
+//                    //change strategie to slow start and dismiss frame
+//                    self.noBadNews = 0
+//                    RTStream.sharedInstance.changeStrategy(Strategies.slowStart)
+//                    NSLog("Frame is late")
+//                }else {
+//                    RTStream.sharedInstance.offerFrame(naluSampleBuffer, fromPeer: fromPeer)
+//                }
+//                rtStreamPeer?.timestampHistory = pts
             }
-            rtStreamPeer?.timestampHistory = pts
-        }
+        })
     }
     
     func handleUpdate(msgDict :[String : AnyObject], fromPeer :MCPeerID){
         let rtStreamPeer = RTStream.sharedInstance.getRtStreamPeerByPeerID(fromPeer)
         //pass a dictionary with all settings that updated
         rtStreamPeer?.updateSettings(msgDict)
-        
     }
 
+    func handleStartMessage(msgDict :[String : AnyObject], fromPeer :MCPeerID){
+        let rtStreamPeer = RTStream.sharedInstance.getRtStreamPeerByPeerID(fromPeer)
+        //pass a dictionary with all settings that updated
+        rtStreamPeer?.isBroadcaster = true
+    }
+    
+    func handleStopMessage(msgDict :[String : AnyObject], fromPeer :MCPeerID){
+        let rtStreamPeer = RTStream.sharedInstance.getRtStreamPeerByPeerID(fromPeer)
+        //pass a dictionary with all settings that updated
+         rtStreamPeer?.isBroadcaster = false
+    }
+    
+    
+    
     
     func incomingMassage(manager: MCManager, fromPeer: MCPeerID, msg: NSData) {
         
@@ -125,6 +190,10 @@ class ControlChanelManager :MCManagerDelegate {
             handleHelloMessage(msgDict, fromPeer: fromPeer)
         case "rttreq":
             handleRTTRequest(msgDict, fromPeer: fromPeer)
+        case "start":
+            handleStartMessage(msgDict, fromPeer: fromPeer)
+        case "stop":
+            handleStopMessage(msgDict, fromPeer: fromPeer)
         case "rttres":
             //print("received rtt response")
             handleRTTResponse(msgDict, fromPeer: fromPeer)
@@ -138,6 +207,25 @@ class ControlChanelManager :MCManagerDelegate {
         }
 
     }
+    
+    func sendStartMessage(){
+        let timestamp = currentTimeMillis()
+        let message : [String:AnyObject] = [
+            "type":"start",
+            "timestamp": timestamp as Double
+            ]
+        RTStream.sharedInstance.mcManager.sendMessageToAllPeers(messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(message))
+    }
+    
+    func sendStopMessage(){
+        let timestamp = currentTimeMillis()
+        let message : [String:AnyObject] = [
+            "type":"stop",
+            "timestamp": timestamp as Double
+        ]
+        RTStream.sharedInstance.mcManager.sendMessageToAllPeers(messageToSend:  NSKeyedArchiver.archivedDataWithRootObject(message))
+    }
+    
     
     func currentTimeMillis() -> Double{
         let nowDouble = NSDate().timeIntervalSince1970
@@ -210,7 +298,7 @@ class ControlChanelManager :MCManagerDelegate {
                 print("rrTime: " + tmpDuration.description)
                 print("History: " + roundTripTimeHistory.description)
                 print("Tendenz: " + tendency.description)
-                if ((roundTripTimeHistory < tmpDuration) && (tendency > 2)){
+                if ((roundTripTimeHistory < tmpDuration) && (tendency >= 2)){
                     self.noBadNews = 0
                     switch tendency{
                     case 2:
